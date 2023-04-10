@@ -45,6 +45,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  shoppingLists ShoppingList[]
 }
 
 model VerificationToken {
@@ -53,4 +54,45 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+
+model Item {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description String
+  emailVerified DateTime?
+  imageUrl         String?
+  categoryId String @db.ObjectId
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  items Item[]
+}
+
+model ShoppingList {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  createdAt  DateTime   @default(now())
+  state ShoppingListState @default(ACTIVE)
+  ownerId String @db.ObjectId
+  owner User @relation(fields: [ownerId], references: [id])
+  items ItemInShoppingList[]
+}
+
+type ItemInShoppingList {
+  itemId String @db.ObjectId
+  name String
+  count Int @default(0)
+  category String
+  cleared Boolean @default(false)
+}
+
+enum ShoppingListState {
+  ACTIVE
+  CANCELED
+  COMPLETED
 }

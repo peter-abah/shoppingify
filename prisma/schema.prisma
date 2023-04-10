@@ -60,7 +60,7 @@ model VerificationToken {
 model Item {
   id  String  @id @default(auto()) @map("_id") @db.ObjectId
   name          String
-  description String
+  description String?
   emailVerified DateTime?
   imageUrl         String?
   categoryId String @db.ObjectId

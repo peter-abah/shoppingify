@@ -1,8 +1,9 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { prisma } from "../../prisma/prisma";
-import type { Category, Item } from "@prisma/client";
+import type { Category, Item as ItemType } from "@prisma/client";
 import Sidebar from "@/components/sidebar";
+import Item from "@/components/item";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const categories = await prisma.category.findMany({
@@ -17,7 +18,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 type HomeProps = {
-  categoriesWithItems: (Category & { items: Item[] })[];
+  categoriesWithItems: (Category & { items: ItemType[] })[];
 };
 export default function Home({ categoriesWithItems }: HomeProps) {
   return (
@@ -31,14 +32,15 @@ export default function Home({ categoriesWithItems }: HomeProps) {
 
       <main className="flex">
         <Sidebar />
-        <div className="flex-auto">
+        <div className="flex-auto px-20">
+          {/* <h1 className="text-[26px]">Shoppingify allows you take your shopping list wherever you go</h1> */}
           {categoriesWithItems.map((category) => (
-            <div key={category.id}>
-              <p>{category.name}</p>
-              <ol>
+            <div key={category.id} className="mb-12">
+              <h2 className="text-lg mb-[18px] font-medium">{category.name}</h2>
+              <ol className="flex flex-wrap gap-x-5 gap-y-12">
                 {category.items.map((item) => (
-                  <li key={item.id}>
-                    <button>{item.name}</button>
+                  <li key={item.id} className="w-fit">
+                    <Item item={item} />
                   </li>
                 ))}
               </ol>

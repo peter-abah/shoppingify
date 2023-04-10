@@ -1,16 +1,17 @@
-import "@/styles/globals.css";
+import "../styles/globals.css";
+
 import type { AppProps } from "next/app";
 import type { NextPage } from "next";
 import { SessionProvider, useSession } from "next-auth/react";
 import { ReactElement, ReactNode } from "react";
 
 export type NextPageWithAuth<P = {}, IP = P> = NextPage<P, IP> & {
-  auth?: boolean
-}
+  auth?: boolean;
+};
 
 type AppPropsWithAuth = AppProps & {
-  Component: NextPageWithAuth
-}
+  Component: NextPageWithAuth;
+};
 
 export default function App({
   Component,

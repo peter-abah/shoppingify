@@ -4,6 +4,7 @@ import { prisma } from "../../prisma/prisma";
 import type { Category, Item as ItemType } from "@prisma/client";
 import Sidebar from "@/components/sidebar";
 import Item from "@/components/item";
+import Header from "@/components/header";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const categories = await prisma.category.findMany({
@@ -33,7 +34,7 @@ export default function Home({ categoriesWithItems }: HomeProps) {
       <main className="flex">
         <Sidebar />
         <div className="flex-auto px-20">
-          {/* <h1 className="text-[26px]">Shoppingify allows you take your shopping list wherever you go</h1> */}
+          <Header />
           {categoriesWithItems.map((category) => (
             <div key={category.id} className="mb-12">
               <h2 className="text-lg mb-[18px] font-medium">{category.name}</h2>

@@ -11,7 +11,7 @@ export default function Sidebar() {
   const { data: session } = useSession({ required: true });
 
   return (
-    <nav className="w-24 h-screen flex flex-col bg-white items-center py-9 justify-between">
+    <nav className="w-24 h-screen flex flex-col bg-white items-center py-9 justify-between fixed top-0 left-0">
       {session?.user?.image ? (
         <img className="w-10 h-10 rounded-full" src={session.user.image} alt={session.user.name!} />
       ) : (

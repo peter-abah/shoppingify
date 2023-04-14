@@ -1,10 +1,16 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { prisma } from "../../prisma/prisma";
-import type { Category, Item as ItemType } from "@prisma/client";
+import type {
+  Category,
+  Item as ItemType,
+  ShoppingList as ShoppingListType,
+  ItemInShoppingList,
+} from "@prisma/client";
 import Sidebar from "@/components/sidebar";
 import Item from "@/components/item";
 import Header from "@/components/header";
+import ShoppingList from "@/components/shopping_list";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const categories = await prisma.category.findMany({
@@ -22,6 +28,25 @@ type HomeProps = {
   categoriesWithItems: (Category & { items: ItemType[] })[];
 };
 export default function Home({ categoriesWithItems }: HomeProps) {
+  const allItems = categoriesWithItems.reduce(
+    (prev, curr) => [...prev, ...curr.items],
+    [] as (Partial<ItemInShoppingList> & ItemType)[]
+  );
+
+  for (let item of allItems) {
+    item.count = 5;
+    item.cleared = false;
+    item.category = categoriesWithItems.find((c) => c.id === item.categoryId)?.name
+  }
+
+  const dSList: ShoppingListType = {
+    name: "Shopping List",
+    id: "1",
+    createdAt: new Date(2022222),
+    state: "ACTIVE",
+    ownerId: "1",
+    items: allItems as Required<ItemInShoppingList>[],
+  };
   return (
     <>
       <Head>
@@ -31,9 +56,9 @@ export default function Home({ categoriesWithItems }: HomeProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex">
+      <main className="main-container flex ml-24 mr-[24rem]">
         <Sidebar />
-        <div className="flex-auto px-20">
+        <div className="items-container flex-auto">
           <Header />
           {categoriesWithItems.map((category) => (
             <div key={category.id} className="mb-12">
@@ -48,6 +73,7 @@ export default function Home({ categoriesWithItems }: HomeProps) {
             </div>
           ))}
         </div>
+        <ShoppingList shoppingList={dSList} />
       </main>
     </>
   );

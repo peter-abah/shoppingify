@@ -5,3 +5,8 @@
 body {
   background: #fafafe;
 }
+
+.items-container {
+  padding-left: max(calc(100vw * 0.05), 2.5rem);
+  padding-right: max(calc(100vw * 0.05), 2.5rem);
+}

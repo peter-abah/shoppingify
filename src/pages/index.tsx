@@ -4,8 +4,6 @@ import { prisma } from "../../prisma/prisma";
 import type {
   Category,
   Item as ItemType,
-  ShoppingList as ShoppingListType,
-  ItemInShoppingList,
 } from "@prisma/client";
 import Sidebar from "@/components/sidebar";
 import Item from "@/components/item";
@@ -28,25 +26,6 @@ type HomeProps = {
   categoriesWithItems: (Category & { items: ItemType[] })[];
 };
 export default function Home({ categoriesWithItems }: HomeProps) {
-  const allItems = categoriesWithItems.reduce(
-    (prev, curr) => [...prev, ...curr.items],
-    [] as (Partial<ItemInShoppingList> & ItemType)[]
-  );
-
-  for (let item of allItems) {
-    item.count = 5;
-    item.cleared = false;
-    item.category = categoriesWithItems.find((c) => c.id === item.categoryId)?.name
-  }
-
-  const dSList: ShoppingListType = {
-    name: "Shopping List",
-    id: "1",
-    createdAt: new Date(2022222),
-    state: "ACTIVE",
-    ownerId: "1",
-    items: allItems as Required<ItemInShoppingList>[],
-  };
   return (
     <>
       <Head>
@@ -73,7 +52,7 @@ export default function Home({ categoriesWithItems }: HomeProps) {
             </div>
           ))}
         </div>
-        <ShoppingList shoppingList={dSList} />
+        <ShoppingList />
       </main>
     </>
   );

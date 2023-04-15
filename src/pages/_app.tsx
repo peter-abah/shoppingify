@@ -3,7 +3,8 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import type { NextPage } from "next";
 import { SessionProvider, useSession } from "next-auth/react";
-import { ReactElement, ReactNode } from "react";
+import { ReactElement } from "react";
+import { StoreContextProvider } from "@/lib/store_context";
 
 export type NextPageWithAuth<P = {}, IP = P> = NextPage<P, IP> & {
   auth?: boolean;
@@ -19,13 +20,15 @@ export default function App({
 }: AppPropsWithAuth) {
   return (
     <SessionProvider session={session}>
-      {Component.auth ? (
-        <Auth>
+      <StoreContextProvider>
+        {Component.auth ? (
+          <Auth>
+            <Component {...pageProps} />
+          </Auth>
+        ) : (
           <Component {...pageProps} />
-        </Auth>
-      ) : (
-        <Component {...pageProps} />
-      )}
+        )}
+      </StoreContextProvider>
     </SessionProvider>
   );
 }

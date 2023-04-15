@@ -1,14 +1,17 @@
 import type {
   ItemInShoppingList,
-  ShoppingList as ShoppingListType,
 } from "@prisma/client";
+import { useStore } from "zustand";
+import { useStoreContext } from "@/lib/store_context";
 import { MdEdit } from "react-icons/md";
 
-type Props = {
-  shoppingList: ShoppingListType;
-};
+export default function ShoppingList() {
+  const storeApi = useStoreContext();
+  const shoppingList = storeApi && useStore(storeApi, (state) => state.activeList)
+  if (!shoppingList) {
+    return <div>none</div>
+  }
 
-export default function ShoppingList({ shoppingList }: Props) {
   const { name, items } = shoppingList;
   const itemsByCategory = groupItemsByCategory(items);
 

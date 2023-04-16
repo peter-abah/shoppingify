@@ -5,8 +5,7 @@ import { MdEdit } from "react-icons/md";
 
 export default function ShoppingList() {
   const storeApi = useStoreContext();
-  const shoppingList =
-    storeApi && useStore(storeApi, (state) => state.activeList);
+  const shoppingList = useStore(storeApi, (state) => state.activeList);
 
   const itemsByCategory: ReturnType<typeof groupItemsByCategory> = shoppingList
     ? groupItemsByCategory(shoppingList.items)
@@ -23,49 +22,53 @@ export default function ShoppingList() {
         </button>
       </div>
 
-      {shoppingList ? (
+      {!shoppingList && (
         <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
           <p className="w-fit text-xl font-bold">
             Error occured while loading shopping list
           </p>
         </div>
-      ) : null}
-
-      {shoppingList && shoppingList?.items.length > 0 ? (
-        <>
-          <h2 className="text-2xl font-bold mb-10 flex items-center">
-            {shoppingList.name} <MdEdit className="text-lg ml-auto" />
-          </h2>
-
-          {Array.from(itemsByCategory.keys()).map((category) => (
-            <div className="mb-12">
-              <h3 className="text-sm text-[#828282] mb-6 font-medium">
-                {category}
-              </h3>
-              <ol>
-                {itemsByCategory.get(category)!.map((item) => (
-                  <li className="flex justify-between items-center mb-6 gap-2">
-                    <span className="text-lg font-medium">{item.name}</span>{" "}
-                    <button className="w-16 h-8 grid place-items-center text-[#F9A10A] border-2 border-[#F9A10A] rounded-3xl text-xs">
-                      {item.count} pcs
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
-        </>
-      ) : (
-        <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
-          <p className="w-fit text-xl font-bold">No items</p>
-        </div>
       )}
+
+      {shoppingList &&
+        (shoppingList?.items.length > 0 ? (
+          <>
+            <h2 className="text-2xl font-bold mb-10 flex items-center">
+              {shoppingList.name} <MdEdit className="text-lg ml-auto" />
+            </h2>
+
+            {Array.from(itemsByCategory.keys()).map((category) => (
+              <div className="mb-12" key={category}>
+                <h3 className="text-sm text-[#828282] mb-6 font-medium">
+                  {category}
+                </h3>
+                <ol>
+                  {itemsByCategory.get(category)!.map((item) => (
+                    <li
+                      className="flex justify-between items-center mb-6 gap-2"
+                      key={item.itemId}
+                    >
+                      <span className="text-lg font-medium">{item.name}</span>{" "}
+                      <button className="w-16 h-8 grid place-items-center text-[#F9A10A] border-2 border-[#F9A10A] rounded-3xl text-xs">
+                        {item.count} pcs
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
+            <p className="w-fit text-xl font-bold">No items</p>
+          </div>
+        ))}
     </div>
   );
 }
 
 function groupItemsByCategory(items: ItemInShoppingList[]) {
-  const result = new Map<String, ItemInShoppingList[]>();
+  const result = new Map<string, ItemInShoppingList[]>();
   for (let item of items) {
     if (result.has(item.category)) {
       result.get(item.category)!.push(item);

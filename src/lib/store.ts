@@ -17,19 +17,30 @@ export interface AppStore {
 }
 
 export const appStore = createStore<AppStore>()(
-  immer((set) => ({
+  immer((set, get) => ({
     activeList: undefined,
     isListLoading: false,
 
     addItemToList: (item) => {
+      // increment count if item already in list
+      let itemFromSearch = get().activeList?.items.find(
+        (i) => i.itemId == item.id
+      );
+      if (itemFromSearch) {
+        get().updateItemCount(item.id, itemFromSearch.count + 1);
+        return;
+      }
+
       const itemInList = {
         ...item,
-        count: 0,
+        count: 1,
         cleared: false,
         category: item.categoryId,
         itemId: item.id,
       };
-      set((state: AppStore) => state.activeList?.items.push(itemInList));
+      set((state: AppStore) => {
+        state.activeList?.items.push(itemInList);
+      });
     },
 
     removeItemFromList: (itemId) =>

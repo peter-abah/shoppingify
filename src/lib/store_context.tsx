@@ -22,7 +22,7 @@ export const StoreContextProvider = ({ children }: Props) => {
     // Set active list on page load
     appStore.getState().setActiveList(shoppingList || null);
     appStore.getState().setIsListLoading(isLoading);
-  }, []);
+  }, [shoppingList, isLoading]);
 
   return (
     <StoreContext.Provider value={appStore}>{children}</StoreContext.Provider>
@@ -30,5 +30,5 @@ export const StoreContextProvider = ({ children }: Props) => {
 };
 
 export function useStoreContext() {
-  return useContext(StoreContext);
+  return useContext(StoreContext) as AppStore;
 }

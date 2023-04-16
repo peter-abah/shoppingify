@@ -1,19 +1,16 @@
-import type {
-  ItemInShoppingList,
-} from "@prisma/client";
+import type { ItemInShoppingList } from "@prisma/client";
 import { useStore } from "zustand";
 import { useStoreContext } from "@/lib/store_context";
 import { MdEdit } from "react-icons/md";
 
 export default function ShoppingList() {
   const storeApi = useStoreContext();
-  const shoppingList = storeApi && useStore(storeApi, (state) => state.activeList)
-  if (!shoppingList) {
-    return <div>none</div>
-  }
+  const shoppingList =
+    storeApi && useStore(storeApi, (state) => state.activeList);
 
-  const { name, items } = shoppingList;
-  const itemsByCategory = groupItemsByCategory(items);
+  const itemsByCategory: ReturnType<typeof groupItemsByCategory> = shoppingList
+    ? groupItemsByCategory(shoppingList.items)
+    : new Map();
 
   return (
     <div className="bg-[#FFF0DE] px-10 h-screen overflow-y-auto grow shrink-0 w-[24rem] fixed top-0 right-0 flex flex-col">
@@ -26,10 +23,18 @@ export default function ShoppingList() {
         </button>
       </div>
 
-      {items.length > 0 ? (
+      {shoppingList ? (
+        <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
+          <p className="w-fit text-xl font-bold">
+            Error occured while loading shopping list
+          </p>
+        </div>
+      ) : null}
+
+      {shoppingList && shoppingList?.items.length > 0 ? (
         <>
           <h2 className="text-2xl font-bold mb-10 flex items-center">
-            {name} <MdEdit className="text-lg ml-auto" />
+            {shoppingList.name} <MdEdit className="text-lg ml-auto" />
           </h2>
 
           {Array.from(itemsByCategory.keys()).map((category) => (

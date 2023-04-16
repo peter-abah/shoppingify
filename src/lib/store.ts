@@ -1,21 +1,25 @@
 import { ShoppingList, Item, ShoppingListState } from "@prisma/client";
+import { is } from "immer/dist/internal";
 import { createStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 export interface AppStore {
-  activeList?: ShoppingList;
+  activeList?: ShoppingList | null;
+  isListLoading: boolean;
   addItemToList: (item: Item) => void;
   removeItemFromList: (itemId: string) => void;
   updateItemCount: (itemId: string, count: number) => void;
   updateListName: (name: string) => void;
   changeListState: (listState: ShoppingListState) => void;
   saveList: () => void;
-  setActiveList: (shoppingList: ShoppingList) => void;
+  setActiveList: (shoppingList?: ShoppingList | null) => void;
+  setIsListLoading: (isLoading: boolean) => void;
 }
 
 export const appStore = createStore<AppStore>()(
   immer((set) => ({
     activeList: undefined,
+    isListLoading: false,
 
     addItemToList: (item) => {
       const itemInList = {
@@ -74,6 +78,10 @@ export const appStore = createStore<AppStore>()(
 
     saveList: () => {
       // TODO: save cart to api route
+    },
+
+    setIsListLoading: (isListLoading) => {
+      set({ isListLoading });
     },
   }))
 );

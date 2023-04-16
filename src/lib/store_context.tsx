@@ -1,4 +1,6 @@
 import { createContext, ReactNode, useEffect, useContext } from "react";
+import useSWR from "swr";
+import { fetcher } from "./fetcher";
 import { appStore } from "@/lib/store";
 import { ShoppingList as ShoppingListType } from "@prisma/client";
 
@@ -9,19 +11,17 @@ type Props = {
   children: ReactNode;
 };
 
-const defaultList: ShoppingListType = {
-  name: "Shopping List",
-  id: "1",
-  createdAt: new Date(2022222),
-  state: "ACTIVE",
-  ownerId: "1",
-  items: [] //allItems as Required<ItemInShoppingList>[],
-};
-
 export const StoreContextProvider = ({ children }: Props) => {
+  const { data, isLoading, error } = useSWR("/api/shopping_list", fetcher);
+  const shoppingList = data?.shoppingList as
+    | ShoppingListType
+    | null
+    | undefined;
+
   useEffect(() => {
     // Set active list on page load
-    appStore.getState().setActiveList(defaultList);
+    appStore.getState().setActiveList(shoppingList || null);
+    appStore.getState().setIsListLoading(isLoading);
   }, []);
 
   return (

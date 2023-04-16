@@ -1,14 +1,12 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { prisma } from "../../prisma/prisma";
-import type {
-  Category,
-  Item as ItemType,
-} from "@prisma/client";
+import type { Category, Item as ItemType } from "@prisma/client";
 import Sidebar from "@/components/sidebar";
 import Item from "@/components/item";
 import Header from "@/components/header";
 import ShoppingList from "@/components/shopping_list";
+import ItemInfo from "@/components/item_info";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const categories = await prisma.category.findMany({
@@ -53,6 +51,7 @@ export default function Home({ categoriesWithItems }: HomeProps) {
           ))}
         </div>
         <ShoppingList />
+        <ItemInfo item={categoriesWithItems[0].items[0]} />
       </main>
     </>
   );

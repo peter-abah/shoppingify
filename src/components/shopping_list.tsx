@@ -12,7 +12,7 @@ export default function ShoppingList() {
     : new Map();
 
   return (
-    <div className="bg-[#FFF0DE] px-10 h-screen overflow-y-auto grow shrink-0 w-[24rem] fixed top-0 right-0 flex flex-col">
+    <div className="bg-[#FFF0DE] px-10 h-screen overflow-y-auto grow shrink-0 w-[24rem] fixed top-0 right-0 z-10 flex flex-col">
       <div className="py-4 px-7 bg-[#80485B] my-11 text-white rounded-xl">
         <p className="font-bold max-w-[10rem] mb-3.5">
           Didn’t find what you need?

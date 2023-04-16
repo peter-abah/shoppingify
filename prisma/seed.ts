@@ -4,13 +4,13 @@ const prisma = new PrismaClient();
 // Deletes all data in database
 // NOTE: Need to add new models to function if they are added to prisma schema
 async function clearDBData() {
+  await prisma.shoppingList.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.account.deleteMany({});
   await prisma.session.deleteMany({});
   await prisma.verificationToken.deleteMany({});
   await prisma.item.deleteMany({});
   await prisma.category.deleteMany({});
-  await prisma.shoppingList.deleteMany({});
 }
 
 async function addDefaultData() {
@@ -33,16 +33,56 @@ async function addDefaultData() {
 
   // Create Items
   const items = [
-    { name: "Avocado", categoryId: foodAndVegCategory.id },
-    { name: "Banana", categoryId: foodAndVegCategory.id },
-    { name: "Bunch of Carrots", categoryId: foodAndVegCategory.id },
-    { name: "Watermelon", categoryId: foodAndVegCategory.id },
-    { name: "Pepper", categoryId: foodAndVegCategory.id },
-    { name: "Chicken 1kg", categoryId: meatFishCategory.id },
-    { name: "Salmon", categoryId: meatFishCategory.id },
-    { name: "Beef 1kg", categoryId: meatFishCategory.id },
-    { name: "Lucozade boost can pack", categoryId: beveragesCategory.id },
-    { name: "Cocacola drink pack", categoryId: beveragesCategory.id },
+    {
+      name: "Avocado",
+      categoryId: foodAndVegCategory.id,
+      categoryName: foodAndVegCategory.name,
+    },
+    {
+      name: "Banana",
+      categoryId: foodAndVegCategory.id,
+      categoryName: foodAndVegCategory.name,
+    },
+    {
+      name: "Bunch of Carrots",
+      categoryId: foodAndVegCategory.id,
+      categoryName: foodAndVegCategory.name,
+    },
+    {
+      name: "Watermelon",
+      categoryId: foodAndVegCategory.id,
+      categoryName: foodAndVegCategory.name,
+    },
+    {
+      name: "Pepper",
+      categoryId: foodAndVegCategory.id,
+      categoryName: foodAndVegCategory.name,
+    },
+    {
+      name: "Chicken 1kg",
+      categoryId: meatFishCategory.id,
+      categoryName: foodAndVegCategory.name,
+    },
+    {
+      name: "Salmon",
+      categoryId: meatFishCategory.id,
+      categoryName: meatFishCategory.name,
+    },
+    {
+      name: "Beef 1kg",
+      categoryId: meatFishCategory.id,
+      categoryName: meatFishCategory.name,
+    },
+    {
+      name: "Lucozade boost can pack",
+      categoryId: beveragesCategory.id,
+      categoryName: beveragesCategory.name,
+    },
+    {
+      name: "Cocacola drink pack",
+      categoryId: beveragesCategory.id,
+      categoryName: beveragesCategory.name,
+    },
   ];
   await prisma.item.createMany({ data: items });
 }

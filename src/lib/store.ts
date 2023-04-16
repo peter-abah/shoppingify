@@ -35,7 +35,7 @@ export const appStore = createStore<AppStore>()(
         ...item,
         count: 1,
         cleared: false,
-        category: item.categoryId,
+        category: item.categoryName,
         itemId: item.id,
       };
       set((state: AppStore) => {

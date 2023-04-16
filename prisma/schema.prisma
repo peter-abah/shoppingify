@@ -64,6 +64,7 @@ model Item {
   emailVerified DateTime?
   imageUrl         String?
   categoryId String @db.ObjectId
+  categoryName String
   category Category @relation(fields: [categoryId], references: [id])
 }
 

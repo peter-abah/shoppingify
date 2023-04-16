@@ -4,22 +4,28 @@ import { createStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 export interface AppStore {
-  activeList?: ShoppingList | null;
+  activeList: ShoppingList | null;
   isListLoading: boolean;
+  currentItem: Item | null;
+  showCurrentItem: boolean;
   addItemToList: (item: Item) => void;
   removeItemFromList: (itemId: string) => void;
   updateItemCount: (itemId: string, count: number) => void;
   updateListName: (name: string) => void;
   changeListState: (listState: ShoppingListState) => void;
   saveList: () => void;
-  setActiveList: (shoppingList?: ShoppingList | null) => void;
+  setActiveList: (shoppingList: ShoppingList | null) => void;
   setIsListLoading: (isLoading: boolean) => void;
+  setCurrentItem: (item: Item | null) => void;
+  setShowCurrentItem: (value: boolean) => void;
 }
 
 export const appStore = createStore<AppStore>()(
   immer((set, get) => ({
-    activeList: undefined,
+    activeList: null,
     isListLoading: false,
+    currentItem: null,
+    showCurrentItem: false,
 
     addItemToList: (item) => {
       // increment count if item already in list
@@ -93,6 +99,14 @@ export const appStore = createStore<AppStore>()(
 
     setIsListLoading: (isListLoading) => {
       set({ isListLoading });
+    },
+
+    setCurrentItem: (item) => {
+      set({ currentItem: item });
+    },
+
+    setShowCurrentItem: (value) => {
+      set({ showCurrentItem: value });
     },
   }))
 );

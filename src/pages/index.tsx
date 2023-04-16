@@ -5,8 +5,8 @@ import type { Category, Item as ItemType } from "@prisma/client";
 import Sidebar from "@/components/sidebar";
 import Item from "@/components/item";
 import Header from "@/components/header";
-import ShoppingList from "@/components/shopping_list";
-import ItemInfo from "@/components/item_info";
+import { useStoreContext } from "@/lib/store_context";
+import { useStore } from "zustand";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const categories = await prisma.category.findMany({
@@ -34,7 +34,6 @@ export default function Home({ categoriesWithItems }: HomeProps) {
       </Head>
 
       <main className="main-container flex ml-24 mr-[24rem]">
-        <Sidebar />
         <div className="items-container flex-auto">
           <Header />
           {categoriesWithItems.map((category) => (
@@ -50,8 +49,6 @@ export default function Home({ categoriesWithItems }: HomeProps) {
             </div>
           ))}
         </div>
-        <ShoppingList />
-        <ItemInfo item={categoriesWithItems[0].items[0]} />
       </main>
     </>
   );

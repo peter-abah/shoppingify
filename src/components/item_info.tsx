@@ -3,18 +3,29 @@ import { Item } from "@prisma/client";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { useStore } from "zustand";
 
-type Props = {
-  item: Item;
-};
-const ItemInfo = ({ item }: Props) => {
+const ItemInfo = () => {
   const storeApi = useStoreContext();
+  const currentItem = useStore(storeApi, (state) => state.currentItem);
   const addItemToList = useStore(storeApi, (state) => state.addItemToList);
   const removeItemFromList = useStore(
     storeApi,
     (state) => state.removeItemFromList
   );
+  const setShowCurrentItem = useStore(
+    storeApi,
+    (state) => state.setShowCurrentItem
+  );
 
-  const { name, description, imageUrl, categoryName } = item;
+  if (!currentItem) {
+    return null;
+  }
+
+  const onAddToList = () => {
+    addItemToList(currentItem);
+    setShowCurrentItem(false);
+  };
+
+  const { name, description, imageUrl, categoryName } = currentItem;
 
   return (
     <div className="bg-white px-11 pt-7 w-[24rem] h-[calc(100vh-8rem)] pb-4 fixed top-0 right-0 overflow-y-auto z-20">
@@ -45,18 +56,18 @@ const ItemInfo = ({ item }: Props) => {
 
       <div>
         <h3 className="text-sm text-[#c1c1c4]">note</h3>
-        <p className="text-lg font-medium">{description}</p>
+        <p className="text-lg font-medium">{description || "No description"}</p>
       </div>
 
       <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
         <button
-          onClick={() => removeItemFromList(item.id)}
+          onClick={() => removeItemFromList(currentItem.id)}
           className="py-5 px-6 rounded-xl font-bold"
         >
           delete
         </button>
         <button
-          onClick={() => addItemToList(item)}
+          onClick={onAddToList}
           className="text-white bg-[#F9A109] py-5 px-6 rounded-xl font-bold"
         >
           Add to list

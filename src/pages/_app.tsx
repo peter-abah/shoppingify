@@ -5,6 +5,7 @@ import type { NextPage } from "next";
 import { SessionProvider, useSession } from "next-auth/react";
 import { ReactElement } from "react";
 import { StoreContextProvider } from "@/lib/store_context";
+import AppLayout from "@/components/app_layout";
 
 export type NextPageWithAuth<P = {}, IP = P> = NextPage<P, IP> & {
   auth?: boolean;
@@ -21,13 +22,15 @@ export default function App({
   return (
     <SessionProvider session={session}>
       <StoreContextProvider>
-        {Component.auth ? (
-          <Auth>
+        <AppLayout>
+          {Component.auth ? (
+            <Auth>
+              <Component {...pageProps} />
+            </Auth>
+          ) : (
             <Component {...pageProps} />
-          </Auth>
-        ) : (
-          <Component {...pageProps} />
-        )}
+          )}
+        </AppLayout>
       </StoreContextProvider>
     </SessionProvider>
   );

@@ -7,7 +7,7 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-export default function Sidebar() {
+export default function NavBar() {
   const { data: session } = useSession({ required: true });
 
   return (

@@ -2,11 +2,8 @@ import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { prisma } from "../../prisma/prisma";
 import type { Category, Item as ItemType } from "@prisma/client";
-import Sidebar from "@/components/sidebar";
 import Item from "@/components/item";
 import Header from "@/components/header";
-import { useStoreContext } from "@/lib/store_context";
-import { useStore } from "zustand";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const categories = await prisma.category.findMany({

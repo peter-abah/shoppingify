@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { useStore } from "zustand";
 import { useStoreContext } from "@/lib/store_context";
-import NavBar from "@/components/sidebar";
+import NavBar from "@/components/nav_bar";
 import ShoppingList from "@/components/shopping_list";
 import ItemInfo from "@/components/item_info";
 import ItemForm from "@/components/item_form";

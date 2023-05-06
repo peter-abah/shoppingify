@@ -1,13 +1,19 @@
 import { ShoppingList, Item, ShoppingListState } from "@prisma/client";
-import { is } from "immer/dist/internal";
 import { createStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
+
+export enum ActiveSideBar {
+  NONE,
+  SHOPPING_LIST,
+  ITEM_FORM,
+  ITEM_INFO,
+}
 
 export interface AppStore {
   activeList: ShoppingList | null;
   isListLoading: boolean;
   currentItem: Item | null;
-  showCurrentItem: boolean;
+  activeSideBar: ActiveSideBar;
   addItemToList: (item: Item) => void;
   removeItemFromList: (itemId: string) => void;
   updateItemCount: (itemId: string, count: number) => void;
@@ -17,7 +23,7 @@ export interface AppStore {
   setActiveList: (shoppingList: ShoppingList | null) => void;
   setIsListLoading: (isLoading: boolean) => void;
   setCurrentItem: (item: Item | null) => void;
-  setShowCurrentItem: (value: boolean) => void;
+  setActiveSideBar: (value: ActiveSideBar) => void;
 }
 
 export const appStore = createStore<AppStore>()(
@@ -25,7 +31,7 @@ export const appStore = createStore<AppStore>()(
     activeList: null,
     isListLoading: true,
     currentItem: null,
-    showCurrentItem: false,
+    activeSideBar: ActiveSideBar["SHOPPING_LIST"],
 
     addItemToList: (item) => {
       // increment count if item already in list
@@ -105,8 +111,8 @@ export const appStore = createStore<AppStore>()(
       set({ currentItem: item });
     },
 
-    setShowCurrentItem: (value) => {
-      set({ showCurrentItem: value });
+    setActiveSideBar: (value) => {
+      set({ activeSideBar: value });
     },
   }))
 );

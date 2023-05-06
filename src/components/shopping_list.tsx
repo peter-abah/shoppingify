@@ -2,10 +2,12 @@ import type { ItemInShoppingList } from "@prisma/client";
 import { useStore } from "zustand";
 import { useStoreContext } from "@/lib/store_context";
 import { MdEdit } from "react-icons/md";
+import Spinner from "./Spinner";
 
 export default function ShoppingList() {
   const storeApi = useStoreContext();
   const shoppingList = useStore(storeApi, (state) => state.activeList);
+  const isListLoading = useStore(storeApi, (state) => state.isListLoading);
 
   const itemsByCategory: ReturnType<typeof groupItemsByCategory> = shoppingList
     ? groupItemsByCategory(shoppingList.items)
@@ -22,7 +24,14 @@ export default function ShoppingList() {
         </button>
       </div>
 
-      {!shoppingList && (
+      {isListLoading && (
+        <Spinner
+          loading={isListLoading}
+          className="fill-black m-auto w-8 h-8"
+        />
+      )}
+
+      {!shoppingList && !isListLoading && (
         <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
           <p className="w-fit text-xl font-bold">
             Error occured while loading shopping list

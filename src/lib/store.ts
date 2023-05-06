@@ -23,7 +23,7 @@ export interface AppStore {
 export const appStore = createStore<AppStore>()(
   immer((set, get) => ({
     activeList: null,
-    isListLoading: false,
+    isListLoading: true,
     currentItem: null,
     showCurrentItem: false,
 

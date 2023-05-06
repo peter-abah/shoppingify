@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 // NOTE: Need to add new models to function if they are added to prisma schema
 async function clearDBData() {
   await prisma.shoppingList.deleteMany({});
+  await prisma.item.deleteMany({});
+  await prisma.category.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.account.deleteMany({});
   await prisma.session.deleteMany({});
   await prisma.verificationToken.deleteMany({});
-  await prisma.item.deleteMany({});
-  await prisma.category.deleteMany({});
 }
 
 // async function addDefaultData() {

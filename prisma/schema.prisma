@@ -63,7 +63,6 @@ model Item {
   id  String  @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   note String?
-  emailVerified DateTime?
   imageUrl         String?
   ownerId String @db.ObjectId
   owner User @relation(fields: [ownerId], references: [id])

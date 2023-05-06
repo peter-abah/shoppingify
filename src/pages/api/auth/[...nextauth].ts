@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../../prisma/prisma";
+import { createUserDefaultData } from "@/lib/create_user_default_data";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -15,6 +16,13 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token, user }) {
       session.user.id = user.id;
       return session;
+    },
+  },
+  events: {
+    async signIn({ user, isNewUser }) {
+      if (isNewUser) {
+        await createUserDefaultData(user.id);
+      }
     },
   },
 };

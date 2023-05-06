@@ -24,7 +24,7 @@ const ItemInfo = () => {
     setShowCurrentItem(false);
   };
 
-  const { name, description, imageUrl, categoryName } = currentItem;
+  const { name, note, imageUrl, categoryName } = currentItem;
 
   return (
     <div className="bg-white px-11 pt-7 w-[24rem] h-[calc(100vh-8rem)] pb-4 fixed top-0 right-0 overflow-y-auto z-20">
@@ -55,7 +55,7 @@ const ItemInfo = () => {
 
       <div>
         <h3 className="text-sm text-[#c1c1c4]">note</h3>
-        <p className="text-lg font-medium">{description || "No description"}</p>
+        <p className="text-lg font-medium">{note || "No note"}</p>
       </div>
 
       <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">

@@ -1,5 +1,4 @@
 import { useStoreContext } from "@/lib/store_context";
-import { Item } from "@prisma/client";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { useStore } from "zustand";
 
@@ -29,7 +28,7 @@ const ItemInfo = () => {
 
   return (
     <div className="bg-white px-11 pt-7 w-[24rem] h-[calc(100vh-8rem)] pb-4 fixed top-0 right-0 overflow-y-auto z-20">
-      <button className="flex text-[#F9A109] mb-9">
+      <button onClick={() => setShowCurrentItem(false)} className="flex text-[#F9A109] mb-9">
         <MdKeyboardBackspace className="text-xl mr-1" />
         <span className="text-sm font-bold">back</span>
       </button>

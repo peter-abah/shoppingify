@@ -20,8 +20,8 @@ export const StoreContextProvider = ({ children }: Props) => {
 
   useEffect(() => {
     // Set active list on page load
-    appStore.getState().setActiveList(shoppingList || null);
-    appStore.getState().setIsListLoading(isLoading);
+    appStore.getState().actions.setActiveList(shoppingList || null);
+    appStore.getState().actions.setIsListLoading(isLoading);
   }, [shoppingList, isLoading]);
 
   return (

@@ -4,6 +4,7 @@ import { useStoreContext } from "@/lib/store_context";
 import { MdEdit } from "react-icons/md";
 import Spinner from "./spinner";
 import { ActiveSideBar } from "@/lib/store";
+import ItemInList from "./item_in_list";
 
 export default function ShoppingList() {
   const storeApi = useStoreContext();
@@ -57,15 +58,7 @@ export default function ShoppingList() {
                 </h3>
                 <ol>
                   {itemsByCategory.get(category)!.map((item) => (
-                    <li
-                      className="flex justify-between items-center mb-6 gap-2"
-                      key={item.itemId}
-                    >
-                      <span className="text-lg font-medium">{item.name}</span>{" "}
-                      <button className="w-16 h-8 grid place-items-center text-[#F9A10A] border-2 border-[#F9A10A] rounded-3xl text-xs">
-                        {item.count} pcs
-                      </button>
-                    </li>
+                    <ItemInList item={item} key={item.itemId} />
                   ))}
                 </ol>
               </div>

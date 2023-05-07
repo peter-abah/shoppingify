@@ -3,6 +3,7 @@ import {
   Item,
   Category,
   ShoppingListState,
+  ItemInShoppingList,
 } from "@prisma/client";
 import { createStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -15,6 +16,11 @@ export enum ActiveSideBar {
   ITEM_INFO,
 }
 
+export enum ShoppingListUIState {
+  COMPLETING,
+  EDITING,
+}
+
 type ItemData = ItemFormData & {
   categoryId: Category["id"];
   categoryName: Category["name"];
@@ -22,6 +28,7 @@ type ItemData = ItemFormData & {
 
 export interface AppStore {
   activeList: ShoppingList | null;
+  activeListUIState: ShoppingListUIState;
   isListLoading: boolean;
   currentItem: Item | null;
   activeSideBar: ActiveSideBar;
@@ -39,7 +46,7 @@ export interface AppStore {
 
     addItemToList: (item: Item) => void;
     removeItemFromList: (itemId: string) => void;
-    updateItemCount: (itemId: string, count: number) => void;
+    updateItemInActiveList: (item: ItemInShoppingList) => void;
     updateListName: (name: string) => void;
     changeListState: (listState: ShoppingListState) => void;
     saveList: () => void;
@@ -47,12 +54,14 @@ export interface AppStore {
     setIsListLoading: (isLoading: boolean) => void;
     setCurrentItem: (item: Item | null) => void;
     setActiveSideBar: (value: ActiveSideBar) => void;
+    setActiveListUIState: (value: ShoppingListUIState) => void;
   };
 }
 
 export const appStore = createStore<AppStore>()(
   immer((set, get) => ({
     activeList: null,
+    activeListUIState: ShoppingListUIState["EDITING"],
     isListLoading: true,
     currentItem: null,
     activeSideBar: ActiveSideBar["SHOPPING_LIST"],
@@ -89,7 +98,10 @@ export const appStore = createStore<AppStore>()(
           (i) => i.itemId == item.id
         );
         if (itemInList) {
-          get().actions.updateItemCount(item.id, itemInList.count + 1);
+          get().actions.updateItemInActiveList({
+            ...itemInList,
+            count: itemInList.count + 1,
+          });
           return;
         }
 
@@ -114,16 +126,16 @@ export const appStore = createStore<AppStore>()(
           );
         }),
 
-      updateItemCount: (itemId, count) => {
-        if (count <= 0) return;
-
+      updateItemInActiveList: (updatedItem) => {
         set((state: AppStore) => {
           if (!state.activeList) return;
 
-          const item = state.activeList.items.find((i) => i.itemId === itemId);
-          if (!item) return;
+          const index = state.activeList.items.findIndex(
+            (i) => i.itemId === updatedItem.itemId
+          );
+          if (index === -1) return;
 
-          item.count = count;
+          state.activeList.items[index] = updatedItem;
         });
       },
 
@@ -163,6 +175,10 @@ export const appStore = createStore<AppStore>()(
 
       setActiveSideBar: (value) => {
         set({ activeSideBar: value });
+      },
+
+      setActiveListUIState: (value) => {
+        set({ activeListUIState: value });
       },
     },
   }))

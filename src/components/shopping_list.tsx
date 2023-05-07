@@ -3,18 +3,31 @@ import { useStore } from "zustand";
 import { useStoreContext } from "@/lib/store_context";
 import { MdEdit } from "react-icons/md";
 import Spinner from "./spinner";
-import { ActiveSideBar } from "@/lib/store";
+import { ActiveSideBar, ShoppingListUIState } from "@/lib/store";
 import ItemInList from "./item_in_list";
+import { useState } from "react";
 
 export default function ShoppingList() {
   const storeApi = useStoreContext();
   const shoppingList = useStore(storeApi, (state) => state.activeList);
+  const uiState = useStore(storeApi, (state) => state.activeListUIState);
   const isListLoading = useStore(storeApi, (state) => state.isListLoading);
-  const { setActiveSideBar } = useStore(storeApi, (state) => state.actions);
+  const { setActiveSideBar, setActiveListUIState } = useStore(
+    storeApi,
+    (state) => state.actions
+  );
 
   const itemsByCategory: ReturnType<typeof groupItemsByCategory> = shoppingList
     ? groupItemsByCategory(shoppingList.items)
     : new Map();
+
+  const toggleUIState = () => {
+    const value =
+      uiState == ShoppingListUIState["COMPLETING"]
+        ? ShoppingListUIState["EDITING"]
+        : ShoppingListUIState["COMPLETING"];
+    setActiveListUIState(value);
+  };
 
   return (
     <div className="bg-[#FFF0DE] px-10 h-screen overflow-y-auto grow shrink-0 w-[24rem] fixed top-0 right-0 z-10 flex flex-col">
@@ -49,7 +62,10 @@ export default function ShoppingList() {
         (shoppingList?.items.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold mb-10 flex items-center">
-              {shoppingList.name} <MdEdit className="text-lg ml-auto" />
+              <span>{shoppingList.name}</span>
+              <button onClick={toggleUIState} className="ml-auto">
+                <MdEdit className="text-lg" />
+              </button>
             </h2>
 
             {Array.from(itemsByCategory.keys()).map((category) => (
@@ -59,7 +75,10 @@ export default function ShoppingList() {
                 </h3>
                 <ol>
                   {itemsByCategory.get(category)!.map((item) => (
-                    <ItemInList item={item} key={item.itemId} />
+                    <ItemInList
+                      item={item}
+                      key={item.itemId}
+                    />
                   ))}
                 </ol>
               </div>

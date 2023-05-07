@@ -3,18 +3,44 @@ import { useOnClickOutside } from "usehooks-ts";
 import { useStoreContext } from "@/lib/store_context";
 import { ItemInShoppingList } from "@prisma/client";
 import { useState } from "react";
-import { MdRemove, MdAdd, MdDeleteOutline } from "react-icons/md";
+import {
+  MdRemove,
+  MdAdd,
+  MdDeleteOutline,
+  MdCheckBoxOutlineBlank,
+  MdOutlineCheckBox,
+} from "react-icons/md";
 import { useStore } from "zustand";
+import { ShoppingListUIState } from "@/lib/store";
 
 type Props = {
   item: ItemInShoppingList;
 };
 function ItemInList({ item }: Props) {
   const [isEdit, setIsEdit] = useState(false);
+  const storeApi = useStoreContext();
+  const listUIState = useStore(storeApi, (state) => state.activeListUIState);
+  const { updateItemInActiveList } = useStore(
+    storeApi,
+    (state) => state.actions
+  );
 
   return (
-    <li className="flex justify-between items-center mb-6 gap-2">
-      <span className="text-lg font-medium overflow-x-hidden whitespace-nowrap text-ellipsis">
+    <li className="flex items-center mb-6">
+      {listUIState === ShoppingListUIState["COMPLETING"] && (
+        <button
+          onClick={() =>
+            updateItemInActiveList({ ...item, cleared: !item.cleared })
+          }
+        >
+          {item.cleared ? (
+            <MdOutlineCheckBox className="text-2xl text-[#F9A10A]" />
+          ) : (
+            <MdCheckBoxOutlineBlank className="text-2xl text-[#F9A10A]" />
+          )}
+        </button>
+      )}
+      <span className="text-lg font-medium ml-4 mr-2 overflow-x-hidden whitespace-nowrap text-ellipsis">
         {item.name}
       </span>{" "}
       {isEdit ? (
@@ -22,7 +48,8 @@ function ItemInList({ item }: Props) {
       ) : (
         <button
           onClick={() => setIsEdit(true)}
-          className="w-16 h-8 grid place-items-center text-[#F9A10A] border-2 border-[#F9A10A] rounded-3xl text-xs"
+          disabled={listUIState === ShoppingListUIState["COMPLETING"]}
+          className="ml-auto w-16 h-8 grid place-items-center text-[#F9A10A] border-2 border-[#F9A10A] rounded-3xl text-xs"
         >
           {item.count} pcs
         </button>
@@ -37,7 +64,7 @@ type EditItemButtonsProps = {
 };
 function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
   const storeApi = useStoreContext();
-  const { updateItemCount, removeItemFromList } = useStore(
+  const { updateItemInActiveList, removeItemFromList } = useStore(
     storeApi,
     (state) => state.actions
   );
@@ -46,7 +73,7 @@ function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
   useOnClickOutside(ref, () => setVisibility(false));
 
   return (
-    <div ref={ref} className="bg-white rounded-xl flex items-center">
+    <div ref={ref} className="bg-white ml-auto rounded-xl flex items-center">
       <button
         onClick={() => removeItemFromList(item.itemId)}
         className="bg-[#F9A10A] text-white px-[.875rem] py-4 rounded-xl"
@@ -56,7 +83,9 @@ function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
 
       <button
         disabled={item.count === 1}
-        onClick={() => updateItemCount(item.itemId, item.count - 1)}
+        onClick={() =>
+          updateItemInActiveList({ ...item, count: item.count - 1 })
+        }
         className="text-[#F9A10A] pl-[.875rem] pr-2 py-4 rounded-xl"
       >
         <MdRemove className="text-sm" />
@@ -67,7 +96,9 @@ function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
       </small>
 
       <button
-        onClick={() => updateItemCount(item.itemId, item.count + 1)}
+        onClick={() =>
+          updateItemInActiveList({ ...item, count: item.count + 1 })
+        }
         className="text-[#F9A10A] px-2 py-4 rounded-xl"
       >
         <MdAdd className="text-sm" />

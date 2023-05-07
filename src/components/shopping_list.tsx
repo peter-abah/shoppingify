@@ -10,7 +10,7 @@ export default function ShoppingList() {
   const storeApi = useStoreContext();
   const shoppingList = useStore(storeApi, (state) => state.activeList);
   const isListLoading = useStore(storeApi, (state) => state.isListLoading);
-  const setActiveSideBar = useStore(storeApi, (state) => state.setActiveSideBar)
+  const { setActiveSideBar } = useStore(storeApi, (state) => state.actions);
 
   const itemsByCategory: ReturnType<typeof groupItemsByCategory> = shoppingList
     ? groupItemsByCategory(shoppingList.items)
@@ -22,9 +22,10 @@ export default function ShoppingList() {
         <p className="font-bold max-w-[10rem] mb-3.5">
           Didn’t find what you need?
         </p>
-        <button onClick={
-          () => setActiveSideBar(ActiveSideBar["ITEM_FORM"])
-        } className="py-2.5 px-7 bg-white text-black text-sm font-bold rounded-xl">
+        <button
+          onClick={() => setActiveSideBar(ActiveSideBar["ITEM_FORM"])}
+          className="py-2.5 px-7 bg-white text-black text-sm font-bold rounded-xl"
+        >
           Add Item
         </button>
       </div>

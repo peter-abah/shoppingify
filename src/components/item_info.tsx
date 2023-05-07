@@ -6,14 +6,9 @@ import { useStore } from "zustand";
 const ItemInfo = () => {
   const storeApi = useStoreContext();
   const currentItem = useStore(storeApi, (state) => state.currentItem);
-  const addItemToList = useStore(storeApi, (state) => state.addItemToList);
-  const removeItemFromList = useStore(
+  const { addItemToList, removeItemFromList, setActiveSideBar } = useStore(
     storeApi,
-    (state) => state.removeItemFromList
-  );
-  const setActiveSideBar = useStore(
-    storeApi,
-    (state) => state.setActiveSideBar
+    (state) => state.actions
   );
 
   if (!currentItem) {

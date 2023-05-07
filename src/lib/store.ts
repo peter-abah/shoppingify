@@ -27,26 +27,27 @@ export interface AppStore {
   activeSideBar: ActiveSideBar;
   items: Item[];
   categories: Category[];
+  actions: {
+    initData: (items: Item[], categories: Category[]) => void;
+    addItem: (item: ItemData) => Promise<Item>;
+    // updateItem: (item: Item) => void,
+    // deleteItem: (itemID: Item["id"]) => void,
 
-  initData: (items: Item[], categories: Category[]) => void;
-  addItem: (item: ItemData) => Promise<Item>;
-  // updateItem: (item: Item) => void,
-  // deleteItem: (itemID: Item["id"]) => void,
+    // addCategory: (category: Category) => void,
+    // updateCategory: (category: Category) => void,
+    // deleteCategory: (categoryID: Category["id"]) => void,
 
-  // addCategory: (category: Category) => void,
-  // updateCategory: (category: Category) => void,
-  // deleteCategory: (categoryID: Category["id"]) => void,
-
-  addItemToList: (item: Item) => void;
-  removeItemFromList: (itemId: string) => void;
-  updateItemCount: (itemId: string, count: number) => void;
-  updateListName: (name: string) => void;
-  changeListState: (listState: ShoppingListState) => void;
-  saveList: () => void;
-  setActiveList: (shoppingList: ShoppingList | null) => void;
-  setIsListLoading: (isLoading: boolean) => void;
-  setCurrentItem: (item: Item | null) => void;
-  setActiveSideBar: (value: ActiveSideBar) => void;
+    addItemToList: (item: Item) => void;
+    removeItemFromList: (itemId: string) => void;
+    updateItemCount: (itemId: string, count: number) => void;
+    updateListName: (name: string) => void;
+    changeListState: (listState: ShoppingListState) => void;
+    saveList: () => void;
+    setActiveList: (shoppingList: ShoppingList | null) => void;
+    setIsListLoading: (isLoading: boolean) => void;
+    setCurrentItem: (item: Item | null) => void;
+    setActiveSideBar: (value: ActiveSideBar) => void;
+  };
 }
 
 export const appStore = createStore<AppStore>()(
@@ -58,107 +59,111 @@ export const appStore = createStore<AppStore>()(
     items: [],
     categories: [],
 
-    initData: (items, categories) => {
-      set({ items, categories });
-    },
+    actions: {
+      initData: (items, categories) => {
+        set({ items, categories });
+      },
 
-    addItem: async (itemData) => {
-      // TODO: Move this to another function
-      const res = await fetch("/api/items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(itemData),
-      });
+      addItem: async (itemData) => {
+        // TODO: Move this to another function
+        const res = await fetch("/api/items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(itemData),
+        });
 
-      if (!res.ok) throw res;
+        if (!res.ok) throw res;
 
-      const { item } = await res.json();
-      set((state: AppStore) => {
-        state.items.push(item);
-      });
-      return item;
-    },
+        const { item } = await res.json();
+        set((state: AppStore) => {
+          state.items.push(item);
+        });
+        return item;
+      },
 
-    addItemToList: (item: Item) => {
-      // increment count if item already in list
-      let itemInList = get().activeList?.items.find((i) => i.itemId == item.id);
-      if (itemInList) {
-        get().updateItemCount(item.id, itemInList.count + 1);
-        return;
-      }
-
-      const itemToAdd = {
-        ...item,
-        count: 1,
-        cleared: false,
-        category: item.categoryName,
-        itemId: item.id,
-      };
-      set((state: AppStore) => {
-        state.activeList?.items.push(itemToAdd);
-      });
-    },
-
-    removeItemFromList: (itemId) =>
-      set((state: AppStore) => {
-        if (!state.activeList) return;
-
-        state.activeList.items = state.activeList.items.filter(
-          (item) => item.itemId !== itemId
+      addItemToList: (item: Item) => {
+        // increment count if item already in list
+        let itemInList = get().activeList?.items.find(
+          (i) => i.itemId == item.id
         );
-      }),
+        if (itemInList) {
+          get().actions.updateItemCount(item.id, itemInList.count + 1);
+          return;
+        }
 
-    updateItemCount: (itemId, count) => {
-      if (count <= 0) return;
+        const itemToAdd = {
+          ...item,
+          count: 1,
+          cleared: false,
+          category: item.categoryName,
+          itemId: item.id,
+        };
+        set((state: AppStore) => {
+          state.activeList?.items.push(itemToAdd);
+        });
+      },
 
-      set((state: AppStore) => {
-        if (!state.activeList) return;
+      removeItemFromList: (itemId) =>
+        set((state: AppStore) => {
+          if (!state.activeList) return;
 
-        const item = state.activeList.items.find((i) => i.itemId === itemId);
-        if (!item) return;
+          state.activeList.items = state.activeList.items.filter(
+            (item) => item.itemId !== itemId
+          );
+        }),
 
-        item.count = count;
-      });
-    },
+      updateItemCount: (itemId, count) => {
+        if (count <= 0) return;
 
-    updateListName: (name) => {
-      if (name === "") return;
+        set((state: AppStore) => {
+          if (!state.activeList) return;
 
-      set((state: AppStore) => {
-        if (!state.activeList) return;
+          const item = state.activeList.items.find((i) => i.itemId === itemId);
+          if (!item) return;
 
-        state.activeList.name = name;
-      });
-    },
+          item.count = count;
+        });
+      },
 
-    changeListState: (listState) =>
-      set((state: AppStore) => {
-        if (!state.activeList) return;
+      updateListName: (name) => {
+        if (name === "") return;
 
-        state.activeList.state = listState;
-      }),
+        set((state: AppStore) => {
+          if (!state.activeList) return;
 
-    setActiveList: (shoppingList) =>
-      set((state: AppStore) => {
-        state.activeList = shoppingList;
-      }),
+          state.activeList.name = name;
+        });
+      },
 
-    saveList: () => {
-      // TODO: save cart to api route
-    },
+      changeListState: (listState) =>
+        set((state: AppStore) => {
+          if (!state.activeList) return;
 
-    setIsListLoading: (isListLoading) => {
-      set({ isListLoading });
-    },
+          state.activeList.state = listState;
+        }),
 
-    setCurrentItem: (item) => {
-      set({ currentItem: item });
-    },
+      setActiveList: (shoppingList) =>
+        set((state: AppStore) => {
+          state.activeList = shoppingList;
+        }),
 
-    setActiveSideBar: (value) => {
-      set({ activeSideBar: value });
+      saveList: () => {
+        // TODO: save cart to api route
+      },
+
+      setIsListLoading: (isListLoading) => {
+        set({ isListLoading });
+      },
+
+      setCurrentItem: (item) => {
+        set({ currentItem: item });
+      },
+
+      setActiveSideBar: (value) => {
+        set({ activeSideBar: value });
+      },
     },
   }))
 );

@@ -25,11 +25,9 @@ const ItemForm = () => {
     boolean | undefined
   >();
   const storeApi = useStoreContext();
-  const addItem = useStore(storeApi, (state) => state.addItem);
-  const setCurrentItem = useStore(storeApi, (state) => state.setCurrentItem);
-  const setActiveSideBar = useStore(
+  const { addItem, setCurrentItem, setActiveSideBar } = useStore(
     storeApi,
-    (state) => state.setActiveSideBar
+    (state) => state.actions
   );
 
   const {
@@ -149,7 +147,11 @@ const ItemForm = () => {
         </div>
 
         <div className="flex justify-center gap-5 w-full items-center z-30">
-          <button type="button" onClick={() => setActiveSideBar(ActiveSideBar["SHOPPING_LIST"])} className="py-4 px-6 rounded-xl font-bold">
+          <button
+            type="button"
+            onClick={() => setActiveSideBar(ActiveSideBar["SHOPPING_LIST"])}
+            className="py-4 px-6 rounded-xl font-bold"
+          >
             cancel
           </button>
           <button

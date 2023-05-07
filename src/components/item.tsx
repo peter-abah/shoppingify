@@ -10,10 +10,9 @@ type Props = {
 
 export default function Item({ item }: Props) {
   const storeApi = useStoreContext();
-  const setCurrentItem = useStore(storeApi, (state) => state.setCurrentItem);
-  const setActiveSideBar = useStore(
+  const { setCurrentItem, setActiveSideBar } = useStore(
     storeApi,
-    (state) => state.setActiveSideBar
+    (state) => state.actions
   );
 
   const onClick = () => {

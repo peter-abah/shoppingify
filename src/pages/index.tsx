@@ -41,7 +41,7 @@ let isSiteStart = true;
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 export default function Home({ categories, items }: HomeProps) {
   const storeApi = useStoreContext();
-  const initData = useStore(storeApi, (state) => state.initData);
+  const { initData } = useStore(storeApi, (state) => state.actions);
 
   const itemsFromStore = useStore(storeApi, (state) => state.items);
   const itemsByCategory = groupItemsByCategory(itemsFromStore);

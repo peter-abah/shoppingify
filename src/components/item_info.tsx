@@ -6,10 +6,8 @@ import { useStore } from "zustand";
 const ItemInfo = () => {
   const storeApi = useStoreContext();
   const currentItem = useStore(storeApi, (state) => state.currentItem);
-  const { addItemToList, removeItemFromList, setActiveSideBar } = useStore(
-    storeApi,
-    (state) => state.actions
-  );
+  const { addItemToList, removeItemFromList, setActiveSideBar, deleteItem } =
+    useStore(storeApi, (state) => state.actions);
 
   if (!currentItem) {
     return null;
@@ -17,6 +15,15 @@ const ItemInfo = () => {
 
   const onAddToList = () => {
     addItemToList(currentItem);
+    setActiveSideBar(ActiveSideBar["SHOPPING_LIST"]);
+  };
+
+  const onDeleteItem = async () => {
+    // TODO: Replace with custom
+    const shouldDelete = window.confirm("Are you sure you want to delete item");
+    if (!shouldDelete) return;
+
+    await deleteItem(currentItem.id);
     setActiveSideBar(ActiveSideBar["SHOPPING_LIST"]);
   };
 
@@ -59,7 +66,7 @@ const ItemInfo = () => {
 
       <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
         <button
-          onClick={() => removeItemFromList(currentItem.id)}
+          onClick={onDeleteItem}
           className="py-5 px-6 rounded-xl font-bold"
         >
           delete

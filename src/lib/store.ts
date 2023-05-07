@@ -38,7 +38,7 @@ export interface AppStore {
     initData: (items: Item[], categories: Category[]) => void;
     addItem: (item: ItemData) => Promise<Item>;
     // updateItem: (item: Item) => void,
-    // deleteItem: (itemID: Item["id"]) => void,
+    deleteItem: (itemID: Item["id"]) => void;
 
     // addCategory: (category: Category) => void,
     // updateCategory: (category: Category) => void,
@@ -90,6 +90,22 @@ export const appStore = createStore<AppStore>()(
           state.items.push(item);
         });
         return item;
+      },
+
+      deleteItem: async (itemId) => {
+        // Delete item in database
+        const res = await fetch(`/api/items/${itemId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) throw res;
+
+        set((state: AppStore) => {
+          state.items = state.items.filter((item) => item.id !== itemId);
+        });
       },
 
       addItemToList: (item: Item) => {

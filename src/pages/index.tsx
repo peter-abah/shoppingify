@@ -1,26 +1,56 @@
 import Head from "next/head";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]";
 import { prisma } from "../../prisma/prisma";
 import type { Category, Item as ItemType } from "@prisma/client";
+import { useStoreContext } from "@/lib/store_context";
 import Item from "@/components/item";
 import Header from "@/components/header";
+import { useStore } from "zustand";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getServerSession(context.req, context.res, authOptions);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+
   const categories = await prisma.category.findMany({
-    include: { items: true },
+    where: { ownerId: session.user.id },
+  });
+  const items = await prisma.item.findMany({
+    where: { ownerId: session.user.id },
   });
 
   return {
     props: {
-      categoriesWithItems: categories,
+      categories,
+      items,
     },
   };
 };
 
-type HomeProps = {
-  categoriesWithItems: (Category & { items: ItemType[] })[];
-};
-export default function Home({ categoriesWithItems }: HomeProps) {
+// Keep track of when site is just loaded
+let isSiteStart = true;
+
+type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+export default function Home({ categories, items }: HomeProps) {
+  const storeApi = useStoreContext();
+  const initData = useStore(storeApi, (state) => state.initData);
+
+  const itemsFromStore = useStore(storeApi, (state) => state.items);
+  const itemsByCategory = groupItemsByCategory(itemsFromStore);
+
+  if (isSiteStart) {
+    initData(items, categories);
+    isSiteStart = false;
+  }
+
   return (
     <>
       <Head>
@@ -33,11 +63,11 @@ export default function Home({ categoriesWithItems }: HomeProps) {
       <main className="main-container flex ml-24 mr-[24rem]">
         <div className="items-container flex-auto">
           <Header />
-          {categoriesWithItems.map((category) => (
-            <div key={category.id} className="mb-12">
-              <h2 className="text-lg mb-[18px] font-medium">{category.name}</h2>
+          {Array.from(itemsByCategory.entries()).map(([category, items]) => (
+            <div key={category} className="mb-12">
+              <h2 className="text-lg mb-[18px] font-medium">{category}</h2>
               <ol className="flex flex-wrap gap-x-5 gap-y-12">
-                {category.items.map((item) => (
+                {items.map((item) => (
                   <li key={item.id} className="w-fit">
                     <Item item={item} />
                   </li>
@@ -49,4 +79,17 @@ export default function Home({ categoriesWithItems }: HomeProps) {
       </main>
     </>
   );
+}
+
+function groupItemsByCategory(items: ItemType[]) {
+  const result = new Map<string, ItemType[]>();
+  for (let item of items) {
+    if (result.has(item.categoryName)) {
+      result.get(item.categoryName)!.push(item);
+    } else {
+      result.set(item.categoryName, [item]);
+    }
+  }
+
+  return result;
 }

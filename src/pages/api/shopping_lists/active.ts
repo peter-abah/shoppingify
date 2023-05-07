@@ -1,8 +1,8 @@
 import { ShoppingList, ShoppingListState } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "../../../prisma/prisma";
+import { prisma } from "../../../../prisma/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./auth/[...nextauth]";
+import { authOptions } from "../auth/[...nextauth]";
 
 type ResponseData =
   | {

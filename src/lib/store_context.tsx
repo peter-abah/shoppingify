@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const StoreContextProvider = ({ children }: Props) => {
-  const { data, isLoading, error } = useSWR("/api/shopping_list", fetcher);
+  const { data, isLoading, error } = useSWR("/api/shopping_lists/active", fetcher);
   const shoppingList = data?.shoppingList as
     | ShoppingListType
     | null

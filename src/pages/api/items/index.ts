@@ -1,25 +1,9 @@
 import { Item } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "../../../prisma/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth/[...nextauth]";
-
-// Authenticates the user and return the session object
-// Sends a 401 response is user is not login
-async function authenticate(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session) {
-    res.status(401).json({ errorMsg: "Unauthenicated, please login" });
-    return false;
-  }
-
-  return true;
-}
+import { prisma } from "../../../../prisma/prisma";
+import { authenticate } from "@/lib/api";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!authenticate(req, res)) return;
-
   switch (req.method) {
     case "GET":
       await readHandler(req, res);
@@ -39,7 +23,8 @@ async function readHandler(
   req: NextApiRequest,
   res: NextApiResponse<ReadResponseData>
 ) {
-  const session = await getServerSession(req, res, authOptions);
+  const session = await authenticate(req, res);
+  if (!session) return;
 
   const items = await prisma.item.findMany({
     where: { ownerId: session!.user.id },
@@ -52,14 +37,15 @@ async function createHandler(
   req: NextApiRequest,
   res: NextApiResponse<CreateResponseData>
 ) {
-  const session = await getServerSession(req, res, authOptions);
+  const session = await authenticate(req, res);
+  if (!session) return;
 
   const itemData = req.body;
-  console.log({itemData});
   const item = await prisma.item.create({
     data: { ...itemData, ownerId: session!.user.id },
   });
   res.status(200).json({ item });
 }
+
 
 export default handler;

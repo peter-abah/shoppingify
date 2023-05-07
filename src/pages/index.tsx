@@ -43,7 +43,14 @@ export default function Home({ categories, items }: HomeProps) {
   const storeApi = useStoreContext();
   const { initData } = useStore(storeApi, (state) => state.actions);
 
-  const itemsFromStore = useStore(storeApi, (state) => state.items);
+  let itemsFromStore = useStore(storeApi, (state) => state.items);
+
+  // To avoid discrepancies between server-side and client-side rendering, 
+  // set the `itemsFromStore` variable to the items from the page props during app start. 
+  // This ensures consistency in the HTML output.
+  if (isSiteStart) {
+    itemsFromStore = items;
+  }
   const itemsByCategory = groupItemsByCategory(itemsFromStore);
 
   if (isSiteStart) {

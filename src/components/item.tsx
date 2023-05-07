@@ -1,3 +1,4 @@
+import { ActiveSideBar } from "@/lib/store";
 import { useStoreContext } from "@/lib/store_context";
 import { Item as ItemType } from "@prisma/client";
 import { MdAdd } from "react-icons/md";
@@ -10,14 +11,14 @@ type Props = {
 export default function Item({ item }: Props) {
   const storeApi = useStoreContext();
   const setCurrentItem = useStore(storeApi, (state) => state.setCurrentItem);
-  const setShowCurrentItem = useStore(
+  const setActiveSideBar = useStore(
     storeApi,
-    (state) => state.setShowCurrentItem
+    (state) => state.setActiveSideBar
   );
 
   const onClick = () => {
     setCurrentItem(item);
-    setShowCurrentItem(true);
+    setActiveSideBar(ActiveSideBar["ITEM_INFO"]);
   };
 
   return (

@@ -6,6 +6,9 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import React, { useState } from "react";
 import Spinner from "./spinner";
+import { useStoreContext } from "@/lib/store_context";
+import { useStore } from "zustand";
+import { ActiveSideBar } from "@/lib/store";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -13,7 +16,7 @@ const formSchema = z.object({
   imageUrl: z.union([z.string().url().optional(), z.string().default("")]),
 });
 
-type FormData = z.infer<typeof formSchema>;
+export type ItemFormData = z.infer<typeof formSchema>;
 
 const ItemForm = () => {
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -21,12 +24,19 @@ const ItemForm = () => {
   const [isCategoryValid, setCategoryValidity] = useState<
     boolean | undefined
   >();
+  const storeApi = useStoreContext();
+  const addItem = useStore(storeApi, (state) => state.addItem);
+  const setCurrentItem = useStore(storeApi, (state) => state.setCurrentItem);
+  const setActiveSideBar = useStore(
+    storeApi,
+    (state) => state.setActiveSideBar
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(formSchema) });
+  } = useForm<ItemFormData>({ resolver: zodResolver(formSchema) });
 
   // TODO: handle error state
   // Fetch categories from api
@@ -35,7 +45,7 @@ const ItemForm = () => {
       setFilteredCategories(data?.categories || []);
     },
   });
-  const categories = (data?.categories || []) as Category[];
+  // const categories = (data?.categories || []) as Category[];
 
   // const onCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const value = e.target.value?.trim() || "";
@@ -50,30 +60,21 @@ const ItemForm = () => {
     setCategoryValidity(true);
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: ItemFormData) => {
     if (category === null) {
       setCategoryValidity(false);
       return;
     }
 
-    const res = await fetch("/api/items", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...data,
-        categoryId: category.id,
-        categoryName: category.name,
-      }),
+    const item = await addItem({
+      ...data,
+      categoryId: category.id,
+      categoryName: category.name,
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      console.log({ data });
-    } else {
-      // Show alert indicating error
-    }
+    // Show new item info
+    setCurrentItem(item);
+    setActiveSideBar(ActiveSideBar["ITEM_INFO"]);
   };
 
   return (
@@ -148,15 +149,15 @@ const ItemForm = () => {
         </div>
 
         <div className="flex justify-center gap-5 w-full items-center z-30">
-          <button type="button" className="py-4 px-6 rounded-xl font-bold">
+          <button type="button" onClick={() => setActiveSideBar(ActiveSideBar["SHOPPING_LIST"])} className="py-4 px-6 rounded-xl font-bold">
             cancel
           </button>
           <button
             type="submit"
-            className="text-white bg-[#F9A109] py-4 px-6 flex justify-between rounded-xl font-bold"
+            className="text-white bg-[#F9A109] py-4 px-6 flex items-center rounded-xl font-bold"
           >
             Save
-            <Spinner loading={isSubmitting} className="fill-white" />
+            <Spinner loading={isSubmitting} className="fill-white ml-4" />
           </button>
         </div>
       </form>

@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Account {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String @db.ObjectId
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.String
-  access_token       String?  @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.String
-  session_state      String?
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -30,71 +30,70 @@ model Account {
 }
 
 model Session {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String @db.ObjectId
+  userId       String   @db.ObjectId
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String?   @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   items         Item[]
-  categories  Category[]
+  categories    Category[]
   shoppingLists ShoppingList[]
 }
 
 model VerificationToken {
-  identifier String @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String   @id @default(auto()) @map("_id") @db.ObjectId
   token      String   @unique
   expires    DateTime
 
   @@unique([identifier, token])
 }
 
-
 model Item {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  note String?
-  imageUrl         String?
-  ownerId String @db.ObjectId
-  owner User @relation(fields: [ownerId], references: [id])
-  categoryId String @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  note         String?
+  imageUrl     String?
+  ownerId      String   @db.ObjectId
+  owner        User     @relation(fields: [ownerId], references: [id])
+  categoryId   String   @db.ObjectId
   categoryName String
-  category Category @relation(fields: [categoryId], references: [id])
+  category     Category @relation(fields: [categoryId], references: [id])
 }
 
 model Category {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
   ownerId String @db.ObjectId
-  owner User @relation(fields: [ownerId], references: [id])
-  items Item[]
+  owner   User   @relation(fields: [ownerId], references: [id])
+  items   Item[]
 }
 
 model ShoppingList {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  createdAt  DateTime   @default(now())
-  state ShoppingListState @default(ACTIVE)
-  ownerId String @db.ObjectId
-  owner User @relation(fields: [ownerId], references: [id])
-  items ItemInShoppingList[]
+  id        String               @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime             @default(now())
+  state     ShoppingListState    @default(ACTIVE)
+  ownerId   String               @db.ObjectId
+  owner     User                 @relation(fields: [ownerId], references: [id])
+  items     ItemInShoppingList[]
 }
 
 type ItemInShoppingList {
-  itemId String @db.ObjectId
-  name String
-  count Int @default(0)
+  itemId   String  @db.ObjectId
+  name     String
+  count    Int     @default(0)
   category String
-  cleared Boolean @default(false)
+  cleared  Boolean @default(false)
 }
 
 enum ShoppingListState {

@@ -1,13 +1,18 @@
 import { ActiveSideBar } from "@/lib/store";
 import { useStoreContext } from "@/lib/store_context";
+import { useState } from "react";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { useStore } from "zustand";
+import Spinner from "./spinner";
 
 const ItemInfo = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
   const storeApi = useStoreContext();
   const currentItem = useStore(storeApi, (state) => state.currentItem);
-  const { addItemToList, removeItemFromList, setActiveSideBar, deleteItem } =
-    useStore(storeApi, (state) => state.actions);
+  const { addItemToList, setActiveSideBar, deleteItem } = useStore(
+    storeApi,
+    (state) => state.actions
+  );
 
   if (!currentItem) {
     return null;
@@ -23,7 +28,9 @@ const ItemInfo = () => {
     const shouldDelete = window.confirm("Are you sure you want to delete item");
     if (!shouldDelete) return;
 
+    setIsDeleting(true);
     await deleteItem(currentItem.id);
+    setIsDeleting(false);
     setActiveSideBar(ActiveSideBar["SHOPPING_LIST"]);
   };
 
@@ -67,9 +74,12 @@ const ItemInfo = () => {
       <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
         <button
           onClick={onDeleteItem}
-          className="py-5 px-6 rounded-xl font-bold"
+          className="py-5 flex items-center px-6 rounded-xl font-bold"
         >
-          delete
+          <span>delete</span>
+          {isDeleting && (
+            <Spinner className="fill-black ml-3" loading={isDeleting} />
+          )}
         </button>
         <button
           onClick={onAddToList}

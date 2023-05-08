@@ -26,6 +26,8 @@ type ItemData = ItemFormData & {
   categoryName: Category["name"];
 };
 
+const TIMEOUT_INTERVAL_TO_SAVE_LIST = 5000;
+
 export interface AppStore {
   activeList: ShoppingList | null;
   activeListUIState: ShoppingListUIState;
@@ -34,6 +36,8 @@ export interface AppStore {
   activeSideBar: ActiveSideBar;
   items: Item[];
   categories: Category[];
+  timeoutIDToSaveList: NodeJS.Timeout | null;
+
   actions: {
     initData: (items: Item[], categories: Category[]) => void;
     addItem: (item: ItemData) => Promise<Item>;
@@ -49,7 +53,7 @@ export interface AppStore {
     updateItemInActiveList: (item: ItemInShoppingList) => void;
     updateListName: (name: string) => void;
     changeListState: (listState: ShoppingListState) => void;
-    saveList: () => void;
+    saveListToDB: () => void;
     setActiveList: (shoppingList: ShoppingList | null) => void;
     setIsListLoading: (isLoading: boolean) => void;
     setCurrentItem: (item: Item | null) => void;
@@ -67,6 +71,7 @@ export const appStore = createStore<AppStore>()(
     activeSideBar: ActiveSideBar["SHOPPING_LIST"],
     items: [],
     categories: [],
+    timeoutIDToSaveList: null,
 
     actions: {
       initData: (items, categories) => {
@@ -113,34 +118,38 @@ export const appStore = createStore<AppStore>()(
         let itemInList = get().activeList?.items.find(
           (i) => i.itemId == item.id
         );
+
         if (itemInList) {
           get().actions.updateItemInActiveList({
             ...itemInList,
             count: itemInList.count + 1,
           });
-          return;
+          get().actions.saveListToDB();
+        } else {
+          const itemToAdd = {
+            name: item.name,
+            count: 1,
+            cleared: false,
+            category: item.categoryName,
+            itemId: item.id,
+          };
+          set((state: AppStore) => {
+            state.activeList?.items.push(itemToAdd);
+          });
         }
-
-        const itemToAdd = {
-          ...item,
-          count: 1,
-          cleared: false,
-          category: item.categoryName,
-          itemId: item.id,
-        };
-        set((state: AppStore) => {
-          state.activeList?.items.push(itemToAdd);
-        });
+        get().actions.saveListToDB();
       },
 
-      removeItemFromList: (itemId) =>
+      removeItemFromList: (itemId) => {
         set((state: AppStore) => {
           if (!state.activeList) return;
 
           state.activeList.items = state.activeList.items.filter(
             (item) => item.itemId !== itemId
           );
-        }),
+        });
+        get().actions.saveListToDB();
+      },
 
       updateItemInActiveList: (updatedItem) => {
         set((state: AppStore) => {
@@ -153,6 +162,7 @@ export const appStore = createStore<AppStore>()(
 
           state.activeList.items[index] = updatedItem;
         });
+        get().actions.saveListToDB();
       },
 
       updateListName: (name) => {
@@ -163,22 +173,47 @@ export const appStore = createStore<AppStore>()(
 
           state.activeList.name = name;
         });
+        get().actions.saveListToDB();
       },
 
-      changeListState: (listState) =>
+      changeListState: (listState) => {
         set((state: AppStore) => {
           if (!state.activeList) return;
 
           state.activeList.state = listState;
-        }),
+        });
+        get().actions.saveListToDB();
+      },
 
       setActiveList: (shoppingList) =>
         set((state: AppStore) => {
           state.activeList = shoppingList;
         }),
 
-      saveList: () => {
-        // TODO: save cart to api route
+      saveListToDB: async () => {
+        const { activeList, timeoutIDToSaveList } = get();
+        if (!activeList) return;
+
+        if (timeoutIDToSaveList) clearTimeout(timeoutIDToSaveList);
+
+        // Save list in 5 seconds so as to batch multiple calls to function in one api call
+        const newTimeoutID = setTimeout(async () => {
+          // Remove ID field from api data since prisma does not allow update of ID
+          // and will throw an error if invalid fielda are present
+          const { id, ...listWithoutID } = activeList;
+
+          const res = await fetch(`/api/shopping_lists/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ shoppingList: listWithoutID }),
+          });
+
+          if (!res.ok) throw res;
+        }, TIMEOUT_INTERVAL_TO_SAVE_LIST);
+
+        set({ timeoutIDToSaveList: newTimeoutID });
       },
 
       setIsListLoading: (isListLoading) => {

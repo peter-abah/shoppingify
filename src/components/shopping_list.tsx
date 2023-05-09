@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import type { ItemInShoppingList } from "@prisma/client";
+import { ItemInShoppingList, ShoppingListState } from "@prisma/client";
 import { useStore } from "zustand";
 import { useStoreContext } from "@/lib/store_context";
 import clsx from "clsx";
@@ -89,7 +89,13 @@ export default function ShoppingList() {
           </div>
         ))}
 
-      <NameForm />
+      {uiState === ShoppingListUIState["EDITING"] ||
+      !shoppingList ||
+      shoppingList.items.length === 0 ? (
+        <NameForm />
+      ) : (
+        <Buttons />
+      )}
     </div>
   );
 }
@@ -97,11 +103,10 @@ export default function ShoppingList() {
 function NameForm() {
   const storeApi = useStoreContext();
   const shoppingList = useStore(storeApi, (state) => state.activeList);
-  const { updateListName } = useStore(storeApi, (state) => state.actions);
+  const { setListName } = useStore(storeApi, (state) => state.actions);
   const { register, reset, handleSubmit } = useForm<{ name: string }>();
 
   const isFormDisabled = !shoppingList || shoppingList.items.length === 0;
-  const formColor = isFormDisabled ? "#C1C1C4" : "";
 
   const inputClassName = clsx(
     "bg-white border-2 focus:outline-none rounded-xl px-6 pr-24 py-5 w-full font-sm",
@@ -114,7 +119,7 @@ function NameForm() {
   );
 
   const onSubmit = ({ name }: { name: string }) => {
-    updateListName(name);
+    setListName(name);
     reset();
   };
 
@@ -140,6 +145,60 @@ function NameForm() {
         </div>
       </fieldset>
     </form>
+  );
+}
+
+function Buttons() {
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const storeApi = useStoreContext();
+  const { setListState, setActiveList } = useStore(
+    storeApi,
+    (state) => state.actions
+  );
+
+  const handleCancel = async () => {
+    // TODO: replace with a modal
+    const shouldCancel = window.confirm(
+      "Are you sure you want to cancel the list"
+    );
+    if (!shouldCancel) return;
+
+    setIsCanceling(true);
+    await setListState(ShoppingListState["CANCELED"]);
+    setIsCanceling(false);
+
+    setActiveList(null);
+  };
+
+  const handleComplete = async () => {
+    setIsCompleting(true);
+    setListState(ShoppingListState["COMPLETED"]);
+    setIsCompleting(false);
+
+    await setActiveList(null);
+  };
+  return (
+    <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
+      <button
+        onClick={handleCancel}
+        className="py-4 flex items-center px-6 rounded-xl font-bold"
+      >
+        <span>cancel</span>
+        {isCanceling && (
+          <Spinner className="fill-black ml-3" loading={isCanceling} />
+        )}
+      </button>
+      <button
+        onClick={handleComplete}
+        className="text-white bg-[#56CCF2] py-4 px-6 rounded-xl font-bold"
+      >
+        Complete
+        {isCompleting && (
+          <Spinner className="fill-white ml-3" loading={isCompleting} />
+        )}
+      </button>
+    </div>
   );
 }
 

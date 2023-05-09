@@ -36,7 +36,7 @@ export interface AppStore {
   activeSideBar: ActiveSideBar;
   items: Item[];
   categories: Category[];
-  timeoutIDToSaveList: NodeJS.Timeout | null;
+  timeoutIDToSaveList: number | null;
 
   actions: {
     initData: (items: Item[], categories: Category[]) => void;
@@ -51,10 +51,13 @@ export interface AppStore {
     addItemToList: (item: Item) => void;
     removeItemFromList: (itemId: string) => void;
     updateItemInActiveList: (item: ItemInShoppingList) => void;
-    updateListName: (name: string) => void;
-    changeListState: (listState: ShoppingListState) => void;
-    saveListToDB: () => void;
+    saveListToDB: (
+      shoppingList?: ShoppingList,
+      timeOutInterval?: number
+    ) => void;
     setActiveList: (shoppingList: ShoppingList | null) => void;
+    setListName: (name: string) => void;
+    setListState: (listState: ShoppingListState) => void;
     setIsListLoading: (isLoading: boolean) => void;
     setCurrentItem: (item: Item | null) => void;
     setActiveSideBar: (value: ActiveSideBar) => void;
@@ -165,7 +168,7 @@ export const appStore = createStore<AppStore>()(
         get().actions.saveListToDB();
       },
 
-      updateListName: (name) => {
+      setListName: (name) => {
         if (name === "") return;
 
         set((state: AppStore) => {
@@ -176,13 +179,20 @@ export const appStore = createStore<AppStore>()(
         get().actions.saveListToDB();
       },
 
-      changeListState: (listState) => {
+      setListState: async (listState) => {
+        const { activeList } = get();
+        if (!activeList) return;
+
+        await get().actions.saveListToDB(
+          { ...activeList, state: listState },
+          0
+        );
+
         set((state: AppStore) => {
           if (!state.activeList) return;
 
           state.activeList.state = listState;
         });
-        get().actions.saveListToDB();
       },
 
       setActiveList: (shoppingList) =>
@@ -190,17 +200,21 @@ export const appStore = createStore<AppStore>()(
           state.activeList = shoppingList;
         }),
 
-      saveListToDB: async () => {
+      saveListToDB: async (
+        shoppingList,
+        timeOutInterval = TIMEOUT_INTERVAL_TO_SAVE_LIST
+      ) => {
         const { activeList, timeoutIDToSaveList } = get();
-        if (!activeList) return;
+        if (!activeList || !shoppingList) return;
 
+        const listToSave = shoppingList || activeList;
         if (timeoutIDToSaveList) clearTimeout(timeoutIDToSaveList);
 
         // Save list in 5 seconds so as to batch multiple calls to function in one api call
-        const newTimeoutID = setTimeout(async () => {
+        const newTimeoutID = window.setTimeout(async () => {
           // Remove ID field from api data since prisma does not allow update of ID
           // and will throw an error if invalid fielda are present
-          const { id, ...listWithoutID } = activeList;
+          const { id, ...listWithoutID } = listToSave;
 
           const res = await fetch(`/api/shopping_lists/${id}`, {
             method: "PUT",
@@ -211,7 +225,7 @@ export const appStore = createStore<AppStore>()(
           });
 
           if (!res.ok) throw res;
-        }, TIMEOUT_INTERVAL_TO_SAVE_LIST);
+        }, timeOutInterval);
 
         set({ timeoutIDToSaveList: newTimeoutID });
       },

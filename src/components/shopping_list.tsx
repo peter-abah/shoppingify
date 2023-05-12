@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ItemInShoppingList, ShoppingListState } from "@prisma/client";
 import clsx from "clsx";
@@ -7,9 +7,10 @@ import Spinner from "./spinner";
 import { useAppStore, ActiveSideBar, ShoppingListUIState } from "@/lib/store";
 import ItemInList from "./item_in_list";
 import useActiveShoppingList from "@/hooks/useActiveShoppingList";
+import { KeyedMutator } from "swr";
 
 export default function ShoppingList() {
-  const { shoppingList, isLoading, error } = useActiveShoppingList();
+  const { shoppingList, isFetching, mutate } = useActiveShoppingList();
   const activeList = useAppStore((state) => state.activeList);
   const uiState = useAppStore((state) => state.activeListUIState);
   const { setActiveList, setActiveSideBar, setActiveListUIState } = useAppStore(
@@ -17,14 +18,17 @@ export default function ShoppingList() {
   );
 
   // Update active list only if the value from hook is an updated version
-  if (
-    (activeList &&
-      shoppingList &&
-      new Date(shoppingList.updatedAt) > new Date(activeList.updatedAt)) ||
-    activeList == null
-  ) {
-    setActiveList(shoppingList);
-  }
+  console.log({ now: new Date(), activeList, shoppingList });
+  useEffect(() => {
+    if (
+      (activeList &&
+        shoppingList &&
+        new Date(shoppingList.updatedAt) > new Date(activeList.updatedAt)) ||
+      activeList == null
+    ) {
+      setActiveList(shoppingList);
+    }
+  }, [activeList?.updatedAt, shoppingList?.updatedAt]);
 
   const itemsByCategory: ReturnType<typeof groupItemsByCategory> = activeList
     ? groupItemsByCategory(activeList.items)
@@ -52,11 +56,11 @@ export default function ShoppingList() {
         </button>
       </div>
 
-      {isLoading && (
-        <Spinner loading={isLoading} className="fill-black m-auto w-8 h-8" />
+      {isFetching && (
+        <Spinner loading={isFetching} className="fill-black m-auto w-8 h-8" />
       )}
 
-      {!activeList && !isLoading && (
+      {!activeList && !isFetching && (
         <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
           <p className="w-fit text-xl font-bold">
             Error occured while loading shopping list
@@ -64,7 +68,8 @@ export default function ShoppingList() {
         </div>
       )}
 
-      {activeList &&
+      {!isFetching &&
+        activeList &&
         (activeList?.items.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold mb-10 flex items-center">
@@ -98,7 +103,7 @@ export default function ShoppingList() {
       activeList.items.length === 0 ? (
         <NameForm />
       ) : (
-        <Buttons />
+        <Buttons mutate={mutate} />
       )}
     </div>
   );
@@ -117,7 +122,7 @@ function NameForm() {
   );
 
   const buttonClassName = clsx(
-    "absolute bottom-0 top-0 right-0 px-4 bg-[#F9A109] text-white rounded-xl font-bold placeholder:text-[#BDBDBD]",
+    "absolute bottom-0 top-0 right-0 px-4 text-white rounded-xl font-bold placeholder:text-[#BDBDBD]",
     { "bg-[#F9A109]": !isFormDisabled, "bg-[#C1C1C4]": isFormDisabled }
   );
 
@@ -151,10 +156,11 @@ function NameForm() {
   );
 }
 
-function Buttons() {
+type ButtonsProps = { mutate: KeyedMutator<any> };
+function Buttons({ mutate }: ButtonsProps) {
   const [isCanceling, setIsCanceling] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const { setListState, setActiveList } = useAppStore((state) => state.actions);
+  const { setListState } = useAppStore((state) => state.actions);
 
   const handleCancel = async () => {
     // TODO: replace with a modal
@@ -167,15 +173,17 @@ function Buttons() {
     await setListState(ShoppingListState["CANCELED"]);
     setIsCanceling(false);
 
-    setActiveList(null);
+    // Fetch new active list
+    mutate();
   };
 
   const handleComplete = async () => {
     setIsCompleting(true);
-    setListState(ShoppingListState["COMPLETED"]);
+    await setListState(ShoppingListState["COMPLETED"]);
     setIsCompleting(false);
 
-    await setActiveList(null);
+    // Fetch new list
+    mutate();
   };
   return (
     <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
@@ -190,9 +198,9 @@ function Buttons() {
       </button>
       <button
         onClick={handleComplete}
-        className="text-white bg-[#56CCF2] py-4 px-6 rounded-xl font-bold"
+        className="flex items-center text-white bg-[#56CCF2] py-4 px-6 rounded-xl font-bold"
       >
-        Complete
+        <span>Complete</span>
         {isCompleting && (
           <Spinner className="fill-white ml-3" loading={isCompleting} />
         )}

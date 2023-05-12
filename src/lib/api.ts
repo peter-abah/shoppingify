@@ -13,4 +13,10 @@ export async function authenticate(req: NextApiRequest, res: NextApiResponse) {
   }
 
   return session;
+};
+
+export async function fecthActiveList(url: string) {
+  return fetch(url, {
+    method: 'POST',
+  }).then(res => res.json())
 }

@@ -53,12 +53,12 @@ export interface AppStore {
     saveListToDB: (
       shoppingList?: WithSerializedDates<ShoppingList>,
       timeOutInterval?: number
-    ) => void;
+    ) => Promise<void>;
     setActiveList: (
       shoppingList: WithSerializedDates<ShoppingList> | null
     ) => void;
     setListName: (name: string) => void;
-    setListState: (listState: ShoppingListState) => void;
+    setListState: (listState: ShoppingListState) => Promise<void>;
     setIsListLoading: (isLoading: boolean) => void;
     setCurrentItem: (item: WithSerializedDates<Item> | null) => void;
     setActiveSideBar: (value: ActiveSideBar) => void;
@@ -216,10 +216,9 @@ export const useAppStore = create<AppStore>()(
           const listToSave = shoppingList || activeList;
           if (timeoutIDToSaveList) clearTimeout(timeoutIDToSaveList);
 
-          // Save list in 5 seconds so as to batch multiple calls to function in one api call
-          const newTimeoutID = window.setTimeout(async () => {
+          const saveList = async () => {
             // Remove ID field from api data since prisma does not allow update of ID
-            // and will throw an error if invalid fielda are present
+            // and will throw an error if invalid fields are present
             const { id, ...listWithoutID } = listToSave;
 
             const res = await fetch(`/api/shopping_lists/${id}`, {
@@ -231,7 +230,15 @@ export const useAppStore = create<AppStore>()(
             });
 
             if (!res.ok) throw res;
-          }, timeOutInterval);
+          }
+
+          let newTimeoutID;
+          if (timeOutInterval === 0) {
+            await saveList();
+            newTimeoutID = null;
+          } else {
+            newTimeoutID = window.setTimeout(saveList, timeOutInterval);
+          }
 
           set({ timeoutIDToSaveList: newTimeoutID });
         },

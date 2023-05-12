@@ -75,7 +75,7 @@ const ItemForm = () => {
             id="itemName"
             type="text"
             placeholder="Enter a name"
-            className="py-5 px-4 border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
+            className="py-4 px-4 border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
             {...register("name")}
           />
           {errors.name && <small>{errors.name.message}</small>}
@@ -87,7 +87,7 @@ const ItemForm = () => {
           </label>
           <textarea
             id="itemNote"
-            className="py-5 px-4 h-28 resize-none border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
+            className="py-4 px-4 h-28 resize-none border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
             placeholder="Enter a note"
             {...register("note")}
           />
@@ -102,7 +102,7 @@ const ItemForm = () => {
             id="itemImage"
             type="url"
             placeholder="Enter a url"
-            className="py-5 px-4 border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
+            className="py-4 px-4 border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
             {...register("imageUrl")}
           />
           {errors.imageUrl && <small>{errors.imageUrl?.message}</small>}
@@ -110,13 +110,6 @@ const ItemForm = () => {
 
         <div className="mb-10">
           <p>Category</p>
-          {/* <input
-            type="text"
-            id="itemCategory"
-            className="py-5 px-4 border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
-            value={category}
-            onChange={onCategoryChange}
-          /> */}
           {!isCategoryValid && <small>Select a category</small>}
 
           <div className="mt-3 border-1 max-h-[11.25rem] overflow-y-auto border-[#E0E0E0] bg-white shadow-sm rounded-xl px-2 py-3">

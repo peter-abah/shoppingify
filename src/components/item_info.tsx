@@ -21,7 +21,7 @@ const ItemInfo = () => {
   };
 
   const onDeleteItem = async () => {
-    // TODO: Replace with custom
+    // TODO: Replace with custom modal
     const shouldDelete = window.confirm("Are you sure you want to delete item");
     if (!shouldDelete) return;
 
@@ -71,7 +71,7 @@ const ItemInfo = () => {
       <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
         <button
           onClick={onDeleteItem}
-          className="py-5 flex items-center px-6 rounded-xl font-bold"
+          className="py-4 flex items-center px-6 rounded-xl font-bold"
         >
           <span>delete</span>
           {isDeleting && (
@@ -80,7 +80,7 @@ const ItemInfo = () => {
         </button>
         <button
           onClick={onAddToList}
-          className="text-white bg-[#F9A109] py-5 px-6 rounded-xl font-bold"
+          className="text-white bg-[#F9A109] py-4 px-6 rounded-xl font-bold"
         >
           Add to list
         </button>

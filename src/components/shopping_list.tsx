@@ -117,7 +117,7 @@ function NameForm() {
   const isFormDisabled = !shoppingList || shoppingList.items.length === 0;
 
   const inputClassName = clsx(
-    "bg-white border-2 focus:outline-none rounded-xl px-6 pr-24 py-5 w-full font-sm",
+    "bg-white border-2 focus:outline-none rounded-xl px-6 pr-24 py-4 w-full font-sm",
     { "border-[#F9A109]": !isFormDisabled, "border-[#C1C1C4]": isFormDisabled }
   );
 

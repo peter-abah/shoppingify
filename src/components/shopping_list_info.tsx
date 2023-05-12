@@ -1,0 +1,47 @@
+import Link from "next/link";
+import { ShoppingList, ShoppingListState } from "@prisma/client";
+import clsx from "clsx";
+import dayjs from "dayjs";
+import { MdArrowForwardIos, MdEventNote } from "react-icons/md";
+import { WithSerializedDates } from "../../types/generic";
+
+type Props = {
+  shoppingList: WithSerializedDates<ShoppingList>;
+};
+
+function ShoppingListInfo({ shoppingList }: Props) {
+  const { name, updatedAt, state } = shoppingList;
+  const date = dayjs(updatedAt).format("ddd D.M.YYYY");
+
+  return (
+    <Link
+      className="bg-white rounded-xl flex items-center justify-between p-5 shadow-sm"
+      href="/history"
+    >
+      <p className="font-medium">{name}</p>
+
+      <div className="flex items-center text-[#C1C1C4]">
+        <MdEventNote className="text-xl" />
+        <span className="ml-3 mr-7 text-xs">{date}</span>
+
+        <span
+          className={clsx(
+            "mr-8 border px-2 py-1 rounded-lg text-xs font-medium",
+            {
+              "text-[#56CCF2] border-[#56CCF2]":
+                state === ShoppingListState["COMPLETED"],
+              "text-[#EB5757] border-[#EB5757]":
+                state === ShoppingListState["CANCELED"],
+            }
+          )}
+        >
+          {state.toLocaleLowerCase()}
+        </span>
+
+        <MdArrowForwardIos className="text-sm text-[#F9A109]" />
+      </div>
+    </Link>
+  );
+}
+
+export default ShoppingListInfo;

@@ -5,7 +5,7 @@ import { z } from "zod";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import React, { useState } from "react";
-import Spinner from "./spinner";
+import Spinner from "../spinner";
 import { useAppStore, ActiveSideBar } from "@/lib/store";
 
 const formSchema = z.object({

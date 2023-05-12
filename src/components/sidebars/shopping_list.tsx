@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form";
 import { ItemInShoppingList, ShoppingListState } from "@prisma/client";
 import clsx from "clsx";
 import { MdEdit } from "react-icons/md";
-import Spinner from "./spinner";
+import Spinner from "../spinner";
 import { useAppStore, ActiveSideBar, ShoppingListUIState } from "@/lib/store";
-import ItemInList from "./item_in_list";
+import ItemInList from "../item_in_list";
 import useActiveShoppingList from "@/hooks/useActiveShoppingList";
 import { KeyedMutator } from "swr";
 

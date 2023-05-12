@@ -8,7 +8,7 @@ import {
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { ItemFormData } from "@/components/item_form";
+import type { ItemFormData } from "@/components/sidebars/item_form";
 import { WithSerializedDates } from "../../types/generic";
 
 export enum ActiveSideBar {

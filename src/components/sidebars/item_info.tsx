@@ -2,7 +2,7 @@ import { ActiveSideBar } from "@/lib/store";
 import { useAppStore } from "@/lib/store";
 import { useState } from "react";
 import { MdKeyboardBackspace } from "react-icons/md";
-import Spinner from "./spinner";
+import Spinner from "../spinner";
 
 const ItemInfo = () => {
   const [isDeleting, setIsDeleting] = useState(false);

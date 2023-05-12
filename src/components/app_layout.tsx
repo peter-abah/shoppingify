@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import NavBar from "@/components/nav_bar";
-import ShoppingList from "@/components/shopping_list";
-import ItemInfo from "@/components/item_info";
-import ItemForm from "@/components/item_form";
+import ShoppingList from "@/components/sidebars/shopping_list";
+import ItemInfo from "@/components/sidebars/item_info";
+import ItemForm from "@/components/sidebars/item_form";
 import { useAppStore, ActiveSideBar } from "@/lib/store";
 
 type Props = {

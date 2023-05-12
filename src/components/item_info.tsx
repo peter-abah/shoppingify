@@ -1,16 +1,13 @@
 import { ActiveSideBar } from "@/lib/store";
-import { useStoreContext } from "@/lib/store_context";
+import { useAppStore } from "@/lib/store";
 import { useState } from "react";
 import { MdKeyboardBackspace } from "react-icons/md";
-import { useStore } from "zustand";
 import Spinner from "./spinner";
 
 const ItemInfo = () => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const storeApi = useStoreContext();
-  const currentItem = useStore(storeApi, (state) => state.currentItem);
-  const { addItemToList, setActiveSideBar, deleteItem } = useStore(
-    storeApi,
+  const currentItem = useAppStore((state) => state.currentItem);
+  const { addItemToList, setActiveSideBar, deleteItem } = useAppStore(
     (state) => state.actions
   );
 

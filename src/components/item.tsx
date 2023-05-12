@@ -1,17 +1,15 @@
 import { ActiveSideBar } from "@/lib/store";
-import { useStoreContext } from "@/lib/store_context";
+import { useAppStore } from "@/lib/store";
 import { Item as ItemType } from "@prisma/client";
 import { MdAdd } from "react-icons/md";
-import { useStore } from "zustand";
+import { WithSerializedDates } from "../../types/generic";
 
 type Props = {
-  item: ItemType;
+  item: WithSerializedDates<ItemType>;
 };
 
 export default function Item({ item }: Props) {
-  const storeApi = useStoreContext();
-  const { setCurrentItem, setActiveSideBar } = useStore(
-    storeApi,
+  const { setCurrentItem, setActiveSideBar } = useAppStore(
     (state) => state.actions
   );
 

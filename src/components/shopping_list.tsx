@@ -1,26 +1,33 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ItemInShoppingList, ShoppingListState } from "@prisma/client";
-import { useStore } from "zustand";
-import { useStoreContext } from "@/lib/store_context";
 import clsx from "clsx";
 import { MdEdit } from "react-icons/md";
 import Spinner from "./spinner";
-import { ActiveSideBar, ShoppingListUIState } from "@/lib/store";
+import { useAppStore, ActiveSideBar, ShoppingListUIState } from "@/lib/store";
 import ItemInList from "./item_in_list";
+import useActiveShoppingList from "@/hooks/useActiveShoppingList";
 
 export default function ShoppingList() {
-  const storeApi = useStoreContext();
-  const shoppingList = useStore(storeApi, (state) => state.activeList);
-  const uiState = useStore(storeApi, (state) => state.activeListUIState);
-  const isListLoading = useStore(storeApi, (state) => state.isListLoading);
-  const { setActiveSideBar, setActiveListUIState } = useStore(
-    storeApi,
+  const { shoppingList, isLoading, error } = useActiveShoppingList();
+  const activeList = useAppStore((state) => state.activeList);
+  const uiState = useAppStore((state) => state.activeListUIState);
+  const { setActiveList, setActiveSideBar, setActiveListUIState } = useAppStore(
     (state) => state.actions
   );
 
-  const itemsByCategory: ReturnType<typeof groupItemsByCategory> = shoppingList
-    ? groupItemsByCategory(shoppingList.items)
+  // Update active list only if the value from hook is an updated version
+  if (
+    (activeList &&
+      shoppingList &&
+      new Date(shoppingList.updatedAt) > new Date(activeList.updatedAt)) ||
+    activeList == null
+  ) {
+    setActiveList(shoppingList);
+  }
+
+  const itemsByCategory: ReturnType<typeof groupItemsByCategory> = activeList
+    ? groupItemsByCategory(activeList.items)
     : new Map();
 
   const toggleUIState = () => {
@@ -45,14 +52,11 @@ export default function ShoppingList() {
         </button>
       </div>
 
-      {isListLoading && (
-        <Spinner
-          loading={isListLoading}
-          className="fill-black m-auto w-8 h-8"
-        />
+      {isLoading && (
+        <Spinner loading={isLoading} className="fill-black m-auto w-8 h-8" />
       )}
 
-      {!shoppingList && !isListLoading && (
+      {!activeList && !isLoading && (
         <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
           <p className="w-fit text-xl font-bold">
             Error occured while loading shopping list
@@ -60,11 +64,11 @@ export default function ShoppingList() {
         </div>
       )}
 
-      {shoppingList &&
-        (shoppingList?.items.length > 0 ? (
+      {activeList &&
+        (activeList?.items.length > 0 ? (
           <>
             <h2 className="text-2xl font-bold mb-10 flex items-center">
-              <span>{shoppingList.name}</span>
+              <span>{activeList.name}</span>
               <button onClick={toggleUIState} className="ml-auto">
                 <MdEdit className="text-lg" />
               </button>
@@ -90,8 +94,8 @@ export default function ShoppingList() {
         ))}
 
       {uiState === ShoppingListUIState["EDITING"] ||
-      !shoppingList ||
-      shoppingList.items.length === 0 ? (
+      !activeList ||
+      activeList.items.length === 0 ? (
         <NameForm />
       ) : (
         <Buttons />
@@ -101,9 +105,8 @@ export default function ShoppingList() {
 }
 
 function NameForm() {
-  const storeApi = useStoreContext();
-  const shoppingList = useStore(storeApi, (state) => state.activeList);
-  const { setListName } = useStore(storeApi, (state) => state.actions);
+  const shoppingList = useAppStore((state) => state.activeList);
+  const { setListName } = useAppStore((state) => state.actions);
   const { register, reset, handleSubmit } = useForm<{ name: string }>();
 
   const isFormDisabled = !shoppingList || shoppingList.items.length === 0;
@@ -151,11 +154,7 @@ function NameForm() {
 function Buttons() {
   const [isCanceling, setIsCanceling] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const storeApi = useStoreContext();
-  const { setListState, setActiveList } = useStore(
-    storeApi,
-    (state) => state.actions
-  );
+  const { setListState, setActiveList } = useAppStore((state) => state.actions);
 
   const handleCancel = async () => {
     // TODO: replace with a modal

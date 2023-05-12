@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { useOnClickOutside } from "usehooks-ts";
-import { useStoreContext } from "@/lib/store_context";
 import { ItemInShoppingList } from "@prisma/client";
 import { useState } from "react";
 import {
@@ -10,20 +9,15 @@ import {
   MdCheckBoxOutlineBlank,
   MdOutlineCheckBox,
 } from "react-icons/md";
-import { useStore } from "zustand";
-import { ShoppingListUIState } from "@/lib/store";
+import { useAppStore, ShoppingListUIState } from "@/lib/store";
 
 type Props = {
   item: ItemInShoppingList;
 };
 function ItemInList({ item }: Props) {
   const [isEdit, setIsEdit] = useState(false);
-  const storeApi = useStoreContext();
-  const listUIState = useStore(storeApi, (state) => state.activeListUIState);
-  const { updateItemInActiveList } = useStore(
-    storeApi,
-    (state) => state.actions
-  );
+  const listUIState = useAppStore((state) => state.activeListUIState);
+  const { updateItemInActiveList } = useAppStore((state) => state.actions);
 
   return (
     <li className="flex items-center mb-6">
@@ -63,9 +57,7 @@ type EditItemButtonsProps = {
   setVisibility: (val: boolean) => void;
 };
 function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
-  const storeApi = useStoreContext();
-  const { updateItemInActiveList, removeItemFromList } = useStore(
-    storeApi,
+  const { updateItemInActiveList, removeItemFromList } = useAppStore(
     (state) => state.actions
   );
 

@@ -6,9 +6,7 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import React, { useState } from "react";
 import Spinner from "./spinner";
-import { useStoreContext } from "@/lib/store_context";
-import { useStore } from "zustand";
-import { ActiveSideBar } from "@/lib/store";
+import { useAppStore, ActiveSideBar } from "@/lib/store";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -24,9 +22,7 @@ const ItemForm = () => {
   const [isCategoryValid, setCategoryValidity] = useState<
     boolean | undefined
   >();
-  const storeApi = useStoreContext();
-  const { addItem, setCurrentItem, setActiveSideBar } = useStore(
-    storeApi,
+  const { addItem, setCurrentItem, setActiveSideBar } = useAppStore(
     (state) => state.actions
   );
 
@@ -43,15 +39,6 @@ const ItemForm = () => {
       setFilteredCategories(data?.categories || []);
     },
   });
-  // const categories = (data?.categories || []) as Category[];
-
-  // const onCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value?.trim() || "";
-  //   setCategory(value);
-
-  //   const filtered = categories.filter(({ name }) => name.startsWith(value));
-  //   setFilteredCategories(filtered);
-  // };
 
   const onSelectCategory = (category: Category) => {
     setCategory(category);

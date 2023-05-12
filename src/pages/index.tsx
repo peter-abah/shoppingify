@@ -3,11 +3,11 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { prisma } from "../../prisma/prisma";
-import type { Category, Item as ItemType } from "@prisma/client";
-import { useStoreContext } from "@/lib/store_context";
+import type { Item as ItemType } from "@prisma/client";
 import Item from "@/components/item";
 import Header from "@/components/header";
-import { useStore } from "zustand";
+import { useAppStore } from "@/lib/store";
+import { WithSerializedDates } from "../../types/generic";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -27,12 +27,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     where: { ownerId: session.user.id },
   });
 
-  return {
-    props: {
-      categories,
-      items,
-    },
-  };
+  // Serialize props to convert Date object to string since Nextjs only serializes scalar values
+  const props = JSON.parse(JSON.stringify({ categories, items }));
+  return { props };
 };
 
 // Keep track of when site is just loaded
@@ -40,13 +37,11 @@ let isSiteStart = true;
 
 type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 export default function Home({ categories, items }: HomeProps) {
-  const storeApi = useStoreContext();
-  const { initData } = useStore(storeApi, (state) => state.actions);
+  const { initData } = useAppStore((state) => state.actions);
+  let itemsFromStore = useAppStore((state) => state.items);
 
-  let itemsFromStore = useStore(storeApi, (state) => state.items);
-
-  // To avoid discrepancies between server-side and client-side rendering, 
-  // set the `itemsFromStore` variable to the items from the page props during app start. 
+  // To avoid discrepancies between server-side and client-side rendering,
+  // set the `itemsFromStore` variable to the items from the page props during app start.
   // This ensures consistency in the HTML output.
   if (isSiteStart) {
     itemsFromStore = items;
@@ -88,8 +83,8 @@ export default function Home({ categories, items }: HomeProps) {
   );
 }
 
-function groupItemsByCategory(items: ItemType[]) {
-  const result = new Map<string, ItemType[]>();
+function groupItemsByCategory(items: WithSerializedDates<ItemType>[]) {
+  const result = new Map<string, WithSerializedDates<ItemType>[]>();
   for (let item of items) {
     if (result.has(item.categoryName)) {
       result.get(item.categoryName)!.push(item);

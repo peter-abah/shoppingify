@@ -62,22 +62,20 @@ export default function Home({ categories, items }: HomeProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container flex ml-24 mr-[24rem]">
-        <div className="items-container flex-auto">
-          <Header />
-          {Array.from(itemsByCategory.entries()).map(([category, items]) => (
-            <div key={category} className="mb-12">
-              <h2 className="text-lg mb-[18px] font-medium">{category}</h2>
-              <ol className="flex flex-wrap gap-x-5 gap-y-12">
-                {items.map((item) => (
-                  <li key={item.id} className="w-fit">
-                    <Item item={item} />
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
-        </div>
+      <main className="main-container flex flex-col ml-24 mr-[24rem]">
+        <Header />
+        {Array.from(itemsByCategory.entries()).map(([category, items]) => (
+          <div key={category} className="mb-12">
+            <h2 className="text-lg mb-[18px] font-medium">{category}</h2>
+            <ol className="flex flex-wrap gap-x-5 gap-y-12">
+              {items.map((item) => (
+                <li key={item.id} className="w-fit">
+                  <Item item={item} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
       </main>
     </>
   );

@@ -1,10 +1,10 @@
 import Head from "next/head";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
-import { prisma } from "../../prisma/prisma";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { prisma } from "../../../prisma/prisma";
 import { ShoppingList, ShoppingListState } from "@prisma/client";
-import { WithSerializedDates } from "../../types/generic";
+import { WithSerializedDates } from "../../../types/generic";
 import dayjs from "dayjs";
 import ShoppingListInfo from "@/components/shopping_list_info";
 
@@ -43,23 +43,21 @@ export default function History({ shoppingLists }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container flex ml-24 mr-[24rem]">
-        <div className="items-container flex-auto">
-          <header className="mt-9 mb-14 flex justify-between">
-            <h1 className="text-[26px] max-w-md font-bold">Shopping History</h1>
-          </header>
+      <main className="main-container flex flex-col ml-24 mr-[24rem] flex-auto">
+        <header className="mt-9 mb-14 flex justify-between">
+          <h1 className="text-[26px] max-w-md font-bold">Shopping History</h1>
+        </header>
 
-          {[...shoppingListsByMonth.entries()].map(([month, lists]) => (
-            <section>
-              <h3 className="font-medium text-xs mb-4">{month}</h3>
-              <div className="flex flex-col gap-7">
-                {lists.map((shoppingList) => (
-                  <ShoppingListInfo shoppingList={shoppingList} />
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        {[...shoppingListsByMonth.entries()].map(([month, lists]) => (
+          <section>
+            <h3 className="font-medium text-xs mb-4">{month}</h3>
+            <div className="flex flex-col gap-7">
+              {lists.map((shoppingList) => (
+                <ShoppingListInfo shoppingList={shoppingList} />
+              ))}
+            </div>
+          </section>
+        ))}
       </main>
     </>
   );

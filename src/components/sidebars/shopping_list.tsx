@@ -8,6 +8,7 @@ import { useAppStore, ActiveSideBar, ShoppingListUIState } from "@/lib/store";
 import ItemInList from "../item_in_list";
 import useActiveShoppingList from "@/hooks/useActiveShoppingList";
 import { KeyedMutator } from "swr";
+import { groupItemsByCategory } from "@/lib/helpers";
 
 export default function ShoppingList() {
   const { shoppingList, isFetching, mutate } = useActiveShoppingList();
@@ -207,17 +208,4 @@ function Buttons({ mutate }: ButtonsProps) {
       </button>
     </div>
   );
-}
-
-function groupItemsByCategory(items: ItemInShoppingList[]) {
-  const result = new Map<string, ItemInShoppingList[]>();
-  for (let item of items) {
-    if (result.has(item.category)) {
-      result.get(item.category)!.push(item);
-    } else {
-      result.set(item.category, [item]);
-    }
-  }
-
-  return result;
 }

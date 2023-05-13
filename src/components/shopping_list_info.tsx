@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ShoppingList, ShoppingListState } from "@prisma/client";
 import clsx from "clsx";
-import dayjs from "dayjs";
-import { MdArrowForwardIos, MdEventNote } from "react-icons/md";
+import { MdArrowForwardIos } from "react-icons/md";
 import { WithSerializedDates } from "../../types/generic";
+import DateComponent from "@/components/date";
 
 type Props = {
   shoppingList: WithSerializedDates<ShoppingList>;
@@ -11,22 +11,20 @@ type Props = {
 
 function ShoppingListInfo({ shoppingList }: Props) {
   const { name, updatedAt, state } = shoppingList;
-  const date = dayjs(updatedAt).format("ddd D.M.YYYY");
 
   return (
     <Link
       className="bg-white rounded-xl flex items-center justify-between p-5 shadow-sm"
-      href="/history"
+      href={`/history/${shoppingList.id}`}
     >
       <p className="font-medium">{name}</p>
 
-      <div className="flex items-center text-[#C1C1C4]">
-        <MdEventNote className="text-xl" />
-        <span className="ml-3 mr-7 text-xs">{date}</span>
+      <div className="flex items-center">
+        <DateComponent date={updatedAt} />
 
         <span
           className={clsx(
-            "mr-8 border px-2 py-1 rounded-lg text-xs font-medium",
+            "mr-8 ml-7 border px-2 py-1 rounded-lg text-xs font-medium",
             {
               "text-[#56CCF2] border-[#56CCF2]":
                 state === ShoppingListState["COMPLETED"],

@@ -43,14 +43,14 @@ export default function History({ shoppingLists }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container flex flex-col ml-24 mr-[24rem] flex-auto">
-        <header className="mt-9 mb-14 flex justify-between">
+      <main className="main-container md:ml-24 md:mr-[24rem] flex-auto">
+        <header className="flex justify-between my-8 md:mt-9 md:mb-14">
           <h1 className="text-[26px] max-w-md font-bold">Shopping History</h1>
         </header>
 
         {[...shoppingListsByMonth.entries()].map(([month, lists]) => (
-          <section>
-            <h3 className="font-medium text-xs mb-4">{month}</h3>
+          <section className="mb-14">
+            <h3 className="mb-4 text-xs font-medium">{month}</h3>
             <div className="flex flex-col gap-7">
               {lists.map((shoppingList) => (
                 <ShoppingListInfo shoppingList={shoppingList} />

@@ -19,7 +19,6 @@ export default function ShoppingList() {
   );
 
   // Update active list only if the value from hook is an updated version
-  console.log({ now: new Date(), activeList, shoppingList });
   useEffect(() => {
     if (
       (activeList &&
@@ -44,8 +43,9 @@ export default function ShoppingList() {
   };
 
   return (
-    <div className="bg-[#FFF0DE] px-10 pb-36 h-screen overflow-y-auto grow shrink-0 w-[24rem] fixed top-0 right-0 z-10 flex flex-col">
-      <div className="py-4 px-7 bg-[#80485B] my-11 text-white rounded-xl">
+    <div className="sidebar bg-[#FFF0DE] px-4 md:px-10 pb-36 h-screen overflow-y-auto grow shrink-0 w-[24rem] 
+                    fixed left-16 md:left-auto top-0 right-0 z-10 flex flex-col">
+      <div className="py-4 px-4 bg-[#80485B] my-11 text-white rounded-xl">
         <p className="font-bold max-w-[10rem] mb-3.5">
           Didn’t find what you need?
         </p>
@@ -62,7 +62,8 @@ export default function ShoppingList() {
       )}
 
       {!activeList && !isFetching && (
-        <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
+        <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat 
+                        bg-bottom">
           <p className="w-fit text-xl font-bold">
             Error occured while loading shopping list
           </p>
@@ -94,7 +95,8 @@ export default function ShoppingList() {
             ))}
           </>
         ) : (
-          <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat bg-bottom">
+          <div className="grow grid place-items-center bg-[url('/shopping_cart.svg')] bg-no-repeat 
+                          bg-bottom">
             <p className="w-fit text-xl font-bold">No items</p>
           </div>
         ))}
@@ -123,7 +125,8 @@ function NameForm() {
   );
 
   const buttonClassName = clsx(
-    "absolute bottom-0 top-0 right-0 px-4 text-white rounded-xl font-bold placeholder:text-[#BDBDBD]",
+    `absolute bottom-0 top-0 right-0 px-4 text-white rounded-xl font-bold 
+      placeholder:text-[#BDBDBD]`,
     { "bg-[#F9A109]": !isFormDisabled, "bg-[#C1C1C4]": isFormDisabled }
   );
 
@@ -135,7 +138,8 @@ function NameForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white fixed w-[24rem] bottom-0 right-0 px-10 py-8"
+      className="bg-white fixed w-[calc(100vw-4rem)] md:w-[24rem] bottom-0 right-0 p-4 md:px-10 
+                  md:py-8"
     >
       <fieldset disabled={isFormDisabled}>
         <div className="relative">
@@ -187,7 +191,8 @@ function Buttons({ mutate }: ButtonsProps) {
     mutate();
   };
   return (
-    <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
+    <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[calc(100vw-4rem)] 
+                    md:w-[24rem] h-[8rem] items-center bg-white z-30">
       <button
         onClick={handleCancel}
         className="py-4 flex items-center px-6 rounded-xl font-bold"

@@ -2,10 +2,10 @@ import { MdSearch } from "react-icons/md";
 
 export default function Header() {
   return (
-    <header className="mt-9 mb-14 flex justify-between">
-      <h1 className="text-[26px] max-w-md font-bold">
-        <span className="text-[#F9A109]">Shoppingify</span> allows you take your
-        shopping list wherever you go
+    <header className="my-8 md:mt-9 md:mb-14 flex flex-wrap justify-between gap-4">
+      <h1 className="text-[26px] md:text-xl xl:text-[26px] max-w-md font-bold">
+        <span className="text-[#F9A109]">Shoppingify </span>
+        <span className="hidden md:inline">allows you take your shopping list wherever you go</span>
       </h1>
 
       <div className="relative">

@@ -34,12 +34,13 @@ const ItemInfo = () => {
   const { name, note, imageUrl, categoryName } = currentItem;
 
   return (
-    <div className="bg-white px-11 pt-7 w-[24rem] h-[calc(100vh-8rem)] pb-4 fixed top-0 right-0 overflow-y-auto z-20">
+    <div className="sidebar bg-white px-6 pt-4 md:px-11 md:pt-7 md:w-[24rem] h-[calc(100vh-8rem)] 
+                    pb-4 fixed top-0 right-0 overflow-y-auto z-20">
       <button
         onClick={() => setActiveSideBar(ActiveSideBar["SHOPPING_LIST"])}
         className="flex text-[#F9A109] mb-9"
       >
-        <MdKeyboardBackspace className="text-xl mr-1" />
+        <MdKeyboardBackspace className="mr-1 text-xl" />
         <span className="text-sm font-bold">back</span>
       </button>
 
@@ -50,7 +51,7 @@ const ItemInfo = () => {
           alt={name}
         />
       ) : (
-        <div className="w-full h-52 rounded-3xl bg-blue-500 mb-14" />
+        <div className="w-full bg-slate-200 h-52 rounded-3xl mb-14" />
       )}
 
       <div className="mb-8">
@@ -68,14 +69,15 @@ const ItemInfo = () => {
         <p className="text-lg font-medium">{note || "No note"}</p>
       </div>
 
-      <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[24rem] h-[8rem] items-center bg-white z-30">
+      <div className="flex justify-center gap-5 fixed bottom-0 right-0  md:w-[24rem] h-[8rem] 
+                      items-center bg-white z-30 w-[calc(100vw-4rem)]">
         <button
           onClick={onDeleteItem}
-          className="py-4 flex items-center px-6 rounded-xl font-bold"
+          className="flex items-center px-6 py-4 font-bold rounded-xl"
         >
           <span>delete</span>
           {isDeleting && (
-            <Spinner className="fill-black ml-3" loading={isDeleting} />
+            <Spinner className="ml-3 fill-black" loading={isDeleting} />
           )}
         </button>
         <button

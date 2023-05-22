@@ -53,7 +53,7 @@ export default function Page({ shoppingList }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container flex flex-col ml-24 mr-[24rem]">
+      <main className="main-container md:ml-24 md:mr-[24rem]">
         {shoppingList ? (
           <>
             <header className="mt-9 mb-14">
@@ -61,7 +61,7 @@ export default function Page({ shoppingList }: PageProps) {
                 onClick={() => router.back()}
                 className="flex text-[#F9A109] mb-9"
               >
-                <MdKeyboardBackspace className="text-xl mr-1" />
+                <MdKeyboardBackspace className="mr-1 text-xl" />
                 <span className="text-sm font-bold">back</span>
               </button>
 
@@ -74,8 +74,8 @@ export default function Page({ shoppingList }: PageProps) {
             <section>
               {itemsByCategory.map(([category, items]) => (
                 <div key={category} className="mb-16">
-                  <h3 className="font-medium text-lg mb-5">{category}</h3>
-                  <ul className="flex gap-5 flex-wrap">
+                  <h3 className="mb-5 text-lg font-medium">{category}</h3>
+                  <ul className="flex flex-wrap gap-5">
                     {items.map((item) => (
                       <IteminShoppingHistory key={item.itemId} item={item} />
                     ))}

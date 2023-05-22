@@ -7,6 +7,16 @@ body {
 }
 
 .main-container {
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  margin-left: 4rem;
+}
+
+.sidebar {
+  width: calc(100vw - 4rem)
+}
+/* .main-container {
   padding-left: max(calc(100vw * 0.05), 2.5rem);
   padding-right: max(calc(100vw * 0.05), 2.5rem);
-}
+} */

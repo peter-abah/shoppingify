@@ -20,10 +20,10 @@ export default function Item({ item }: Props) {
 
   return (
     <button
-      className="flex px-4 py-3 text-left font-medium gap-4 justify-between items-center bg-white rounded-xl w-44"
+      className="flex px-4 py-3 text-left font-medium gap-4 justify-between items-center bg-white rounded-xl w-36 md:w-44"
       onClick={onClick}
     >
-      <span>{item.name}</span> <MdAdd className="text-neutral-300 shrink-0" />
+      <span className="text-sm md:text-base">{item.name}</span> <MdAdd className="text-neutral-300 shrink-0" />
     </button>
   );
 }

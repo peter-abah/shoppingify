@@ -53,7 +53,7 @@ export default function NavBar() {
           </Link>
         </li>
         <li>
-          <Link href="/stats">
+          <Link href="/statistics">
             <MdOutlineInsertChartOutlined className="text-2xl" />
           </Link>
         </li>

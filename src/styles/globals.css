@@ -7,7 +7,7 @@ body {
 }
 
 .main-container {
-  padding: 0 1rem;
+  padding: 0 1.5rem;
   display: flex;
   flex-direction: column;
   margin-left: 4rem;
@@ -32,6 +32,7 @@ body {
 @media screen and (min-width: 64rem) {
   .main-container {
     padding: 0 5rem;
+    padding: 0 max(calc(100vw * 0.06), 2.5rem);
     margin-right: 24rem;
   }
 }

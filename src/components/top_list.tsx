@@ -14,7 +14,7 @@ type Props = {
 function TopList({ data, title, ui }: Props) {
   const { className = "", itemColor = "#F9A109" } = ui || {};
   return (
-    <section className={className + " w-[min(100%,20rem)]"}>
+    <section className={className + " w-[min(100%,20rem)] min-w-[12.5rem]"}>
       <header className="mb-9">
         <h2 className="text-2xl font-medium">{title}</h2>
       </header>
@@ -22,10 +22,10 @@ function TopList({ data, title, ui }: Props) {
         {data.map(({ name, percent }) => (
           <li key={name} className="mb-7">
             <p className="flex justify-between items-center mb-3 gap-4 font-medium">
-              <span className="text-sm overflow-hidden text-ellipsis">
+              <span className="text-sm overflow-hidden text-ellipsis whitespace-nowrap">
                 {name}
               </span>
-              <span className="text-lg shrink-0">{percent} %</span>
+              <span className="text-lg shrink-0">{percent.toFixed(0)}%</span>
             </p>
             <div
               className="top-list_item relative bg-[#E0E0E0] rounded h-[6px] before:absolute 

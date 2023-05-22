@@ -17,6 +17,11 @@ body {
   width: min(calc(100vw - 4rem), 24rem);
 }
 
+.top-list_item::before {
+  width: var(--percent);
+  background-color: var(--item-color);
+}
+
 @media screen and (min-width: 48rem) {
   .main-container {
     padding: 0 5rem;

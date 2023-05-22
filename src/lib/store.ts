@@ -36,6 +36,7 @@ export interface AppStore {
   isListLoading: boolean;
   currentItem: WithSerializedDates<Item> | null;
   activeSideBar: ActiveSideBar;
+  sidebarHistory: ActiveSideBar[];
   items: WithSerializedDates<Item>[];
   categories: WithSerializedDates<Category>[];
   timeoutIDToSaveList: number | null;
@@ -63,6 +64,8 @@ export interface AppStore {
     setCurrentItem: (item: WithSerializedDates<Item> | null) => void;
     setActiveSideBar: (value: ActiveSideBar) => void;
     setActiveListUIState: (value: ShoppingListUIState) => void;
+    addSideBarToHistory: (value: ActiveSideBar) => void;
+    popFromSideBarHistory: () => ActiveSideBar | undefined;
   };
 }
 
@@ -74,6 +77,7 @@ export const useAppStore = create<AppStore>()(
       isListLoading: true,
       currentItem: null,
       activeSideBar: ActiveSideBar["SHOPPING_LIST"],
+      sidebarHistory: [ActiveSideBar["SHOPPING_LIST"]],
       items: [],
       categories: [],
       timeoutIDToSaveList: null,
@@ -230,7 +234,7 @@ export const useAppStore = create<AppStore>()(
             });
 
             if (!res.ok) throw res;
-          }
+          };
 
           let newTimeoutID;
           if (timeOutInterval === 0) {
@@ -252,11 +256,39 @@ export const useAppStore = create<AppStore>()(
         },
 
         setActiveSideBar: (value) => {
-          set({ activeSideBar: value });
+          set((state: AppStore) => {
+            state.activeSideBar = value;
+
+            // Clear history if there is no active sidebar
+            if (value === ActiveSideBar["NONE"]) {
+              state.sidebarHistory = [];
+            } else {
+              state.sidebarHistory.push(value);
+            }
+          });
         },
 
         setActiveListUIState: (value) => {
           set({ activeListUIState: value });
+        },
+
+        addSideBarToHistory: (value) =>
+          set((state: AppStore) => {
+            state.sidebarHistory.push(value);
+          }),
+
+        popFromSideBarHistory: () => {
+          const sidebarHistory = get().sidebarHistory;
+          if (sidebarHistory.length < 1) return;
+
+          const value = sidebarHistory[sidebarHistory.length - 1];
+          set((state: AppStore) => {
+            state.sidebarHistory.pop();
+            state.activeSideBar =
+              state.sidebarHistory[state.sidebarHistory.length - 1] ||
+              ActiveSideBar["NONE"];
+          });
+          return value;
         },
       },
     }))

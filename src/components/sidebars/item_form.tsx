@@ -19,9 +19,8 @@ export type ItemFormData = z.infer<typeof formSchema>;
 
 const ItemForm = () => {
   const categories = useAppStore((state) => state.categories);
-  const { addItem, setCurrentItem, setActiveSideBar } = useAppStore(
-    (state) => state.actions
-  );
+  const { addItem, setCurrentItem, setActiveSideBar, popFromSideBarHistory } =
+    useAppStore((state) => state.actions);
 
   const [filteredCategories, setFilteredCategories] = useState(categories);
   const [category, setCategory] =
@@ -63,6 +62,7 @@ const ItemForm = () => {
 
     // Show new item info
     setCurrentItem(item);
+    popFromSideBarHistory();
     setActiveSideBar(ActiveSideBar["ITEM_INFO"]);
   };
 
@@ -143,7 +143,7 @@ const ItemForm = () => {
         <div className="z-30 flex items-center justify-center w-full gap-5">
           <button
             type="button"
-            onClick={() => setActiveSideBar(ActiveSideBar["SHOPPING_LIST"])}
+            onClick={() => popFromSideBarHistory()}
             className="px-6 py-4 font-bold rounded-xl"
           >
             cancel

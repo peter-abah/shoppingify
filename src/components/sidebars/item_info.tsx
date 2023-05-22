@@ -7,7 +7,7 @@ import Spinner from "../spinner";
 const ItemInfo = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const currentItem = useAppStore((state) => state.currentItem);
-  const { addItemToList, setActiveSideBar, deleteItem } = useAppStore(
+  const { addItemToList, popFromSideBarHistory, deleteItem } = useAppStore(
     (state) => state.actions
   );
 
@@ -17,7 +17,7 @@ const ItemInfo = () => {
 
   const onAddToList = () => {
     addItemToList(currentItem);
-    setActiveSideBar(ActiveSideBar["SHOPPING_LIST"]);
+    popFromSideBarHistory();
   };
 
   const onDeleteItem = async () => {
@@ -28,7 +28,7 @@ const ItemInfo = () => {
     setIsDeleting(true);
     await deleteItem(currentItem.id);
     setIsDeleting(false);
-    setActiveSideBar(ActiveSideBar["SHOPPING_LIST"]);
+    popFromSideBarHistory();
   };
 
   const { name, note, imageUrl, categoryName } = currentItem;
@@ -37,7 +37,7 @@ const ItemInfo = () => {
     <div className="sidebar bg-white px-6 pt-4 md:px-11 md:pt-7 md:w-[24rem] h-[calc(100vh-8rem)] 
                     pb-4 fixed top-0 right-0 overflow-y-auto z-20">
       <button
-        onClick={() => setActiveSideBar(ActiveSideBar["SHOPPING_LIST"])}
+        onClick={() => popFromSideBarHistory()}
         className="flex text-[#F9A109] mb-9"
       >
         <MdKeyboardBackspace className="mr-1 text-xl" />

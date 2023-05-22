@@ -7,13 +7,18 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ActiveSideBar, useAppStore } from "@/lib/store";
+import useWindowDimensions from "@/hooks/useWindowDimesions";
 
 export default function NavBar() {
   const { data: session } = useSession({ required: true });
   const activeSideBar = useAppStore((state) => state.activeSideBar);
   const { setActiveSideBar } = useAppStore((state) => state.actions);
+  const {width} = useWindowDimensions()
 
   const toggleShoppingList = () => {
+    // Only toggle shopping list for tablets and mobile phones
+    if (width > 1024) return;
+
     if (activeSideBar === ActiveSideBar["SHOPPING_LIST"]) {
       setActiveSideBar(ActiveSideBar["NONE"]);
     } else {

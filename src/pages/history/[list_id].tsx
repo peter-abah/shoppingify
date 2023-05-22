@@ -53,7 +53,7 @@ export default function Page({ shoppingList }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container md:ml-24 md:mr-[24rem]">
+      <main className="main-container">
         {shoppingList ? (
           <>
             <header className="mt-9 mb-14">

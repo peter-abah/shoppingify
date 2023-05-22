@@ -43,7 +43,7 @@ export default function History({ shoppingLists }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container md:ml-24 md:mr-[24rem] flex-auto">
+      <main className="main-container">
         <header className="flex justify-between my-8 md:mt-9 md:mb-14">
           <h1 className="text-[26px] max-w-md font-bold">Shopping History</h1>
         </header>

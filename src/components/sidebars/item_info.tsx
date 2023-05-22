@@ -70,7 +70,7 @@ const ItemInfo = () => {
       </div>
 
       <div className="flex justify-center gap-5 fixed bottom-0 right-0  md:w-[24rem] h-[8rem] 
-                      items-center bg-white z-30 w-[calc(100vw-4rem)]">
+                      items-center bg-white z-30 w-[min(calc(100vw-4rem),24rem)]">
         <button
           onClick={onDeleteItem}
           className="flex items-center px-6 py-4 font-bold rounded-xl"

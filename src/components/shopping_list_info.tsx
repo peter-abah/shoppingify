@@ -14,8 +14,8 @@ function ShoppingListInfo({ shoppingList }: Props) {
 
   return (
     <Link
-      className="flex flex-wrap gap-y-2 items-center justify-between px-4 py-3 bg-white shadow-sm md:p-5 
-                rounded-xl "
+      className="flex flex-wrap items-center justify-between px-4 py-3 bg-white shadow-sm md:p-5 
+                rounded-xl gap-x-4 gap-y-2"
       href={`/history/${shoppingList.id}`}
     >
       <p className="font-medium">{name}</p>

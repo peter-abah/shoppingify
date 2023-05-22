@@ -14,9 +14,19 @@ body {
 }
 
 .sidebar {
-  width: calc(100vw - 4rem)
+  width: min(calc(100vw - 4rem), 24rem);
 }
-/* .main-container {
-  padding-left: max(calc(100vw * 0.05), 2.5rem);
-  padding-right: max(calc(100vw * 0.05), 2.5rem);
-} */
+
+@media screen and (min-width: 48rem) {
+  .main-container {
+    padding: 0 5rem;
+    margin-left: 6rem;
+  }
+}
+
+@media screen and (min-width: 64rem) {
+  .main-container {
+    padding: 0 5rem;
+    margin-right: 24rem;
+  }
+}

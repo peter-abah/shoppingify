@@ -44,7 +44,7 @@ export default function ShoppingList() {
 
   return (
     <div className="sidebar bg-[#FFF0DE] px-4 md:px-10 pb-36 h-screen overflow-y-auto grow shrink-0 w-[24rem] 
-                    fixed left-16 md:left-auto top-0 right-0 z-10 flex flex-col">
+                    fixed md:left-auto top-0 right-0 z-10 flex flex-col">
       <div className="py-4 px-4 bg-[#80485B] my-11 text-white rounded-xl">
         <p className="font-bold max-w-[10rem] mb-3.5">
           Didn’t find what you need?
@@ -138,7 +138,7 @@ function NameForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white fixed w-[calc(100vw-4rem)] md:w-[24rem] bottom-0 right-0 p-4 md:px-10 
+      className="bg-white fixed w-[min(calc(100vw-4rem),24rem)] md:w-[24rem] bottom-0 right-0 p-4 md:px-10 
                   md:py-8"
     >
       <fieldset disabled={isFormDisabled}>
@@ -191,7 +191,7 @@ function Buttons({ mutate }: ButtonsProps) {
     mutate();
   };
   return (
-    <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[calc(100vw-4rem)] 
+    <div className="flex justify-center gap-5 fixed bottom-0 right-0 w-[min(calc(100vw-4rem),24rem)] 
                     md:w-[24rem] h-[8rem] items-center bg-white z-30">
       <button
         onClick={handleCancel}

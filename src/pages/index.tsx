@@ -62,7 +62,7 @@ export default function Home({ categories, items }: HomeProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container md:ml-24 md:mr-[24rem]">
+      <main className="main-container">
         <Header />
         {Array.from(itemsByCategory.entries()).map(([category, items]) => (
           <div key={category} className="md:mb-12 mb-7">

@@ -66,10 +66,10 @@ model Item {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   ownerId      String   @db.ObjectId
-  owner        User     @relation(fields: [ownerId], references: [id])
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   categoryId   String   @db.ObjectId
   categoryName String
-  category     Category @relation(fields: [categoryId], references: [id])
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 
 model Category {
@@ -78,7 +78,7 @@ model Category {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   ownerId String @db.ObjectId
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   items   Item[]
 }
 
@@ -89,7 +89,7 @@ model ShoppingList {
   updatedAt DateTime             @updatedAt
   state     ShoppingListState    @default(ACTIVE)
   ownerId   String               @db.ObjectId
-  owner     User                 @relation(fields: [ownerId], references: [id])
+  owner     User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   items     ItemInShoppingList[]
 }
 

@@ -52,6 +52,10 @@ export interface AppStore {
       categoryName: string
     ) => Promise<WithSerializedDates<Category>>;
     deleteCategory: (categoryID: Category["id"]) => Promise<void>;
+    updateCategory: (
+      categoryID: string,
+      name: string
+    ) => Promise<WithSerializedDates<Category>>;
     addItemToList: (item: WithSerializedDates<Item>) => void;
     removeItemFromList: (itemId: string) => void;
     updateItemInActiveList: (item: ItemInShoppingList) => void;
@@ -142,6 +146,29 @@ export const useAppStore = create<AppStore>()(
             state.categories.push(category);
           });
           return category;
+        },
+
+        updateCategory: async (categoryID, categoryName) => {
+          const res = await fetch(`/api/categories/${categoryID}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: categoryName }),
+          });
+
+          if (!res.ok) throw res;
+
+          const { category: updatedCategory } = await res.json();
+          set((state: AppStore) => {
+            const index = state.categories.findIndex(
+              (c) => c.id === updatedCategory.id
+            );
+            if (index === -1) return;
+
+            state.categories[index] = updatedCategory;
+          });
+          return updatedCategory;
         },
 
         deleteCategory: async (categoryID) => {

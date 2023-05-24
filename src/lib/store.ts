@@ -47,8 +47,11 @@ export interface AppStore {
       categories: WithSerializedDates<Category>[]
     ) => void;
     createItem: (item: ItemData) => Promise<WithSerializedDates<Item>>;
-    deleteItem: (itemID: Item["id"]) => void;
-    createCategory: (categoryName: string) => Promise<WithSerializedDates<Category>>;
+    deleteItem: (itemID: Item["id"]) => Promise<void>;
+    createCategory: (
+      categoryName: string
+    ) => Promise<WithSerializedDates<Category>>;
+    deleteCategory: (categoryID: Category["id"]) => Promise<void>;
     addItemToList: (item: WithSerializedDates<Item>) => void;
     removeItemFromList: (itemId: string) => void;
     updateItemInActiveList: (item: ItemInShoppingList) => void;
@@ -129,7 +132,7 @@ export const useAppStore = create<AppStore>()(
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({name: categoryName}),
+            body: JSON.stringify({ name: categoryName }),
           });
 
           if (!res.ok) throw res;
@@ -139,6 +142,27 @@ export const useAppStore = create<AppStore>()(
             state.categories.push(category);
           });
           return category;
+        },
+
+        deleteCategory: async (categoryID) => {
+          // Delete item in database
+          const res = await fetch(`/api/categories/${categoryID}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!res.ok) throw res;
+
+          set((state: AppStore) => {
+            state.items = state.items.filter(
+              (item) => item.categoryId !== categoryID
+            );
+            state.categories = state.categories.filter(
+              (category) => category.id !== categoryID
+            );
+          });
         },
 
         addItemToList: (item) => {

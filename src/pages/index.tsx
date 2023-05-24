@@ -5,6 +5,7 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import { prisma } from "../../prisma/prisma";
 import type { Item as ItemType } from "@prisma/client";
 import Item from "@/components/item";
+import Category from "@/components/category";
 import Header from "@/components/header";
 import { useAppStore } from "@/lib/store";
 import { WithSerializedDates } from "../../types/generic";
@@ -64,9 +65,9 @@ export default function Home({ categories, items }: HomeProps) {
 
       <main className="main-container">
         <Header />
-        {Array.from(itemsByCategory.entries()).map(([category, items]) => (
-          <div key={category} className="md:mb-12 mb-7">
-            <h2 className="text-lg mb-[18px] font-medium">{category}</h2>
+        {Array.from(itemsByCategory.entries()).map(([categoryId, items]) => (
+          <div key={categoryId} className="md:mb-12 mb-7">
+            <Category categoryId={categoryId} />
             <ol className="flex flex-wrap gap-x-2 gap-y-6 md:gap-x-5 md:gap-y-12">
               {items.map((item) => (
                 <li key={item.id} className="w-fit">
@@ -84,10 +85,10 @@ export default function Home({ categories, items }: HomeProps) {
 function groupItemsByCategory(items: WithSerializedDates<ItemType>[]) {
   const result = new Map<string, WithSerializedDates<ItemType>[]>();
   for (let item of items) {
-    if (result.has(item.categoryName)) {
-      result.get(item.categoryName)!.push(item);
+    if (result.has(item.categoryId)) {
+      result.get(item.categoryId)!.push(item);
     } else {
-      result.set(item.categoryName, [item]);
+      result.set(item.categoryId, [item]);
     }
   }
 

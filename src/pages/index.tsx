@@ -40,6 +40,7 @@ type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 export default function Home({ categories, items }: HomeProps) {
   const { initData } = useAppStore((state) => state.actions);
   let itemsFromStore = useAppStore((state) => state.items);
+  const searchInput = useAppStore((state) => state.searchInput);
 
   // To avoid discrepancies between server-side and client-side rendering,
   // set the `itemsFromStore` variable to the items from the page props during app start.
@@ -47,7 +48,11 @@ export default function Home({ categories, items }: HomeProps) {
   if (isSiteStart) {
     itemsFromStore = items;
   }
-  const itemsByCategory = groupItemsByCategory(itemsFromStore);
+
+  const filteredItems = itemsFromStore.filter((i) =>
+    i.name.toLocaleLowerCase().startsWith(searchInput.toLocaleLowerCase())
+  );
+  const itemsByCategory = groupItemsByCategory(filteredItems);
 
   if (isSiteStart) {
     initData(items, categories);

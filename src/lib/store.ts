@@ -40,6 +40,7 @@ export interface AppStore {
   items: WithSerializedDates<Item>[];
   categories: WithSerializedDates<Category>[];
   timeoutIDToSaveList: number | null;
+  searchInput: string;
 
   actions: {
     initData: (
@@ -74,6 +75,7 @@ export interface AppStore {
     setActiveListUIState: (value: ShoppingListUIState) => void;
     addSideBarToHistory: (value: ActiveSideBar) => void;
     popFromSideBarHistory: () => ActiveSideBar | undefined;
+    setSearchInput: (value: string) => void;
   };
 }
 
@@ -89,6 +91,7 @@ export const useAppStore = create<AppStore>()(
       items: [],
       categories: [],
       timeoutIDToSaveList: null,
+      searchInput: "",
 
       actions: {
         initData: (items, categories) => {
@@ -359,6 +362,10 @@ export const useAppStore = create<AppStore>()(
               ActiveSideBar["NONE"];
           });
           return value;
+        },
+
+        setSearchInput: (value) => {
+          set({ searchInput: value });
         },
       },
     }))

@@ -46,8 +46,9 @@ export interface AppStore {
       items: WithSerializedDates<Item>[],
       categories: WithSerializedDates<Category>[]
     ) => void;
-    addItem: (item: ItemData) => Promise<WithSerializedDates<Item>>;
+    createItem: (item: ItemData) => Promise<WithSerializedDates<Item>>;
     deleteItem: (itemID: Item["id"]) => void;
+    createCategory: (categoryName: string) => Promise<WithSerializedDates<Category>>;
     addItemToList: (item: WithSerializedDates<Item>) => void;
     removeItemFromList: (itemId: string) => void;
     updateItemInActiveList: (item: ItemInShoppingList) => void;
@@ -87,7 +88,7 @@ export const useAppStore = create<AppStore>()(
           set({ items, categories });
         },
 
-        addItem: async (itemData) => {
+        createItem: async (itemData) => {
           // TODO: Move this to another function
           const res = await fetch("/api/items", {
             method: "POST",
@@ -120,6 +121,24 @@ export const useAppStore = create<AppStore>()(
           set((state: AppStore) => {
             state.items = state.items.filter((item) => item.id !== itemId);
           });
+        },
+
+        createCategory: async (categoryName) => {
+          const res = await fetch("/api/categories", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({name: categoryName}),
+          });
+
+          if (!res.ok) throw res;
+
+          const { category } = await res.json();
+          set((state: AppStore) => {
+            state.categories.push(category);
+          });
+          return category;
         },
 
         addItemToList: (item) => {

@@ -2,12 +2,11 @@ import { Category } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import useSWR from "swr";
-import { fetcher } from "@/lib/fetcher";
 import React, { useState } from "react";
 import Spinner from "../spinner";
 import { useAppStore, ActiveSideBar } from "@/lib/store";
 import { WithSerializedDates } from "../../../types/generic";
+import clsx from "clsx";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -19,11 +18,17 @@ export type ItemFormData = z.infer<typeof formSchema>;
 
 const ItemForm = () => {
   const categories = useAppStore((state) => state.categories);
-  const { addItem, setCurrentItem, setActiveSideBar, popFromSideBarHistory } =
-    useAppStore((state) => state.actions);
+  const {
+    createItem,
+    createCategory,
+    setCurrentItem,
+    setActiveSideBar,
+    popFromSideBarHistory,
+  } = useAppStore((state) => state.actions);
 
-  const [filteredCategories, setFilteredCategories] = useState(categories);
-  const [category, setCategory] =
+  const [categoryInput, setCategoryInput] = useState("");
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [selectedCategory, setSelectedCategory] =
     useState<WithSerializedDates<Category> | null>(null);
   const [isCategoryValid, setCategoryValidity] = useState<
     boolean | undefined
@@ -35,29 +40,38 @@ const ItemForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<ItemFormData>({ resolver: zodResolver(formSchema) });
 
-  // TODO: handle error state
-  // Fetch categories from api
-  const { data, error } = useSWR("/api/categories", fetcher, {
-    onSuccess: (data) => {
-      setFilteredCategories(data?.categories || []);
-    },
-  });
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().startsWith(categoryInput.toLowerCase().trim())
+  );
 
   const onSelectCategory = (category: WithSerializedDates<Category>) => {
-    setCategory(category);
+    setSelectedCategory(category);
     setCategoryValidity(true);
   };
 
+  const onCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCategoryInput(e.target.value);
+  };
+
+  const onCreateCategory = async () => {
+    if (categoryInput == "") return;
+
+    setIsCreatingCategory(true);
+    const category = await createCategory(categoryInput);
+    setIsCreatingCategory(false);
+    setSelectedCategory(category)
+  };
+
   const onSubmit = async (data: ItemFormData) => {
-    if (category === null) {
+    if (selectedCategory === null) {
       setCategoryValidity(false);
       return;
     }
 
-    const item = await addItem({
+    const item = await createItem({
       ...data,
-      categoryId: category.id,
-      categoryName: category.name,
+      categoryId: selectedCategory.id,
+      categoryName: selectedCategory.name,
     });
 
     // Show new item info
@@ -119,25 +133,52 @@ const ItemForm = () => {
         </div>
 
         <div className="mb-10">
-          <p>Category</p>
-          {!isCategoryValid && <small>Select a category</small>}
+          <label htmlFor="itemCateory">Category</label>
+          <input
+            id="itemCategory"
+            placeholder="Find or create new category"
+            className="py-4 px-4 border-2 border-[#bdbdbd] bg-transparent rounded-xl w-full 
+                      text-sm placeholder:text-sm placeholder:text-[#bdbdbd]"
+            value={categoryInput}
+            onChange={onCategoryChange}
+          />
+          {isCategoryValid === false && <small>Select a category</small>}
 
-          <div
-            className="mt-3 border-1 max-h-[11.25rem] overflow-y-auto border-[#E0E0E0] 
+          {filteredCategories.length === 0 && categoryInput.length > 0 ? (
+            <button
+              type="button"
+              onClick={onCreateCategory}
+              className="w-full mt-4 px-6 py-4 flex items-center justify-center font-bold rounded-xl 
+                      bg-[#56CCF2] text-white"
+              disabled={isCreatingCategory}
+            >
+              <span>Create category</span>
+              <Spinner
+                loading={isCreatingCategory}
+                className="ml-4 fill-white"
+              />
+            </button>
+          ) : (
+            <div
+              className="mt-3 border-1 max-h-[11.25rem] overflow-y-auto border-[#E0E0E0] 
                         bg-white shadow-sm rounded-xl px-2 py-3"
-          >
-            {filteredCategories.map((c) => (
-              <button
-                className="w-full px-5 py-3 text-start text-lg text-[#828282] font-medium 
-                          rounded-xl hover:bg-[#f2f2f2] hover:text-[#34333a]"
-                key={c.id}
-                type="button"
-                onClick={() => onSelectCategory(c)}
-              >
-                {c.name}
-              </button>
-            ))}
-          </div>
+            >
+              {filteredCategories.map((c) => (
+                <button
+                  className={clsx(
+                    `w-full px-5 py-3 text-start text-lg text-[#828282] font-medium 
+                          rounded-xl hover:bg-[#f2f2f2] hover:text-[#34333a]`,
+                    { "bg-[#f2f2f2]": c.name === selectedCategory?.name }
+                  )}
+                  key={c.id}
+                  type="button"
+                  onClick={() => onSelectCategory(c)}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="z-30 flex items-center justify-center w-full gap-5">
@@ -152,6 +193,7 @@ const ItemForm = () => {
             type="submit"
             className="text-white bg-[#F9A109] py-4 px-6 flex items-center rounded-xl 
                         font-bold"
+            disabled={isSubmitting}
           >
             Save
             <Spinner loading={isSubmitting} className="ml-4 fill-white" />

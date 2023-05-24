@@ -22,10 +22,11 @@ async function createHandler(
   if (!session) return;
 
   const { name } = req.body;
+  console.log({name})
   const category = await prisma.category.create({
     data: { name, ownerId: session!.user.id },
   });
-  res.status(200).json({ category });
+  return res.status(200).json({ category });
 }
 
 export default handler;

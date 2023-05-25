@@ -49,7 +49,7 @@ export default function Page({ statistics }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container">
+      <div className="main-container">
         <div className="flex justify-between gap-x-16 gap-y-8 mt-14 mb-16 mx-auto w-full flex-wrap max-w-screen-md">
           <TopList
             title="Top Items"
@@ -64,7 +64,7 @@ export default function Page({ statistics }: PageProps) {
         </div>
 
         <MonthChart data={statistics.byMonth} />
-      </main>
+      </div>
     </>
   );
 }

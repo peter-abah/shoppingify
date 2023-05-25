@@ -1,10 +1,13 @@
 import { ReactNode, useEffect } from "react";
+import {Quicksand} from "next/font/google";
 import NavBar from "@/components/nav_bar";
 import ShoppingList from "@/components/sidebars/shopping_list";
 import ItemInfo from "@/components/sidebars/item_info";
 import ItemForm from "@/components/sidebars/item_form";
 import { useAppStore, ActiveSideBar } from "@/lib/store";
 import useWindowDimensions from "@/hooks/useWindowDimesions";
+
+const quicksand = Quicksand({ subsets: ["latin"], variable: "--font-quicksand" });
 
 type Props = {
   children: ReactNode;
@@ -33,12 +36,12 @@ const AppLayout = ({ children }: Props) => {
     }
   };
   return (
-    <>
+    <main className={`${quicksand.variable} font-sans`}>
       {children}
       <NavBar />
       <Sidebar />
       {}
-    </>
+    </main>
   );
 };
 

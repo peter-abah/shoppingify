@@ -52,7 +52,7 @@ export default function Home({ categories, items }: HomeProps) {
   const filteredItems = itemsFromStore.filter((i) =>
     i.name.toLocaleLowerCase().startsWith(searchInput.toLocaleLowerCase())
   );
-  const itemsByCategory = groupItemsByCategory(filteredItems);
+  const itemsByCategory = [...groupItemsByCategory(filteredItems).entries()];
 
   if (isSiteStart) {
     initData(items, categories);
@@ -68,9 +68,9 @@ export default function Home({ categories, items }: HomeProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="main-container">
+      <div className="main-container">
         <Header />
-        {Array.from(itemsByCategory.entries()).map(([categoryId, items]) => (
+        {itemsByCategory.map(([categoryId, items]) => (
           <div key={categoryId} className="md:mb-12 mb-7">
             <Category categoryId={categoryId} />
             <ol className="flex flex-wrap gap-x-2 gap-y-6 md:gap-x-5 md:gap-y-12">
@@ -82,7 +82,7 @@ export default function Home({ categories, items }: HomeProps) {
             </ol>
           </div>
         ))}
-      </main>
+      </div>
     </>
   );
 }

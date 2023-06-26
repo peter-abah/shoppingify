@@ -4,16 +4,17 @@ import {
   MdReplay,
   MdShoppingCart,
 } from "react-icons/md";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { ActiveSideBar, useAppStore } from "@/lib/store";
 import useWindowDimensions from "@/hooks/useWindowDimesions";
+import OptionsMenu from "./options_menu";
 
 export default function NavBar() {
   const { data: session } = useSession({ required: true });
   const activeSideBar = useAppStore((state) => state.activeSideBar);
   const { setActiveSideBar } = useAppStore((state) => state.actions);
-  const {width} = useWindowDimensions()
+  const { width } = useWindowDimensions();
 
   const toggleShoppingList = () => {
     // Only toggle shopping list for tablets and mobile phones
@@ -31,15 +32,24 @@ export default function NavBar() {
       className="md:w-24 w-16 h-screen flex flex-col bg-white items-center py-9 
                     justify-between fixed top-0 left-0"
     >
-      {session?.user?.image ? (
-        <img
-          className="w-10 h-10 rounded-full"
-          src={session.user.image}
-          alt={session.user.name!}
-        />
-      ) : (
-        <div className="w-10 h-10 bg-red-600 rounded-full"></div>
-      )}
+      <OptionsMenu
+        menuButton={
+          <button>
+            {session?.user?.image ? (
+              <img
+                className="w-10 h-10 rounded-full"
+                src={session.user.image}
+                alt={session.user.name!}
+              />
+            ) : (
+              <div className="w-10 h-10 bg-red-600 rounded-full">
+                <span className="sr-only">Display picture</span>
+              </div>
+            )}
+          </button>
+        }
+        options={[{ node: "Sign out", onClick: signOut }]}
+      />
 
       <ol className="flex flex-col gap-10">
         <li>

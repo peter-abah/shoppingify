@@ -20,7 +20,7 @@ function OptionsMenu({ options, menuButton }: Props) {
   return (
     <Menu
       menuButton={menuButton}
-      menuClassName="py-2 bg-gray-2 min-w-[6rem] mr-4 shadow-md rounded-md"
+      menuClassName="py-2 bg-white min-w-[6rem] mr-4 shadow-md rounded-md"
     >
       {options.map(({ node, onClick }) => (
         <MenuItem onClick={onClick} className="cursor-pointer px-4 py-1 hover:bg-[#f2f2f2]">

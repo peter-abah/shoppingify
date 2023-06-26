@@ -9,6 +9,8 @@ import Category from "@/components/category";
 import Header from "@/components/header";
 import { useAppStore } from "@/lib/store";
 import { WithSerializedDates } from "../../types/generic";
+import { ReactElement } from "react";
+import AppLayout from "@/components/app_layout";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -86,6 +88,10 @@ export default function Home({ categories, items }: HomeProps) {
     </>
   );
 }
+
+Home.getLayout = function getLayout(page: ReactElement) {
+  return <AppLayout>{page}</AppLayout>;
+};
 
 function groupItemsByCategory(items: WithSerializedDates<ItemType>[]) {
   const result = new Map<string, WithSerializedDates<ItemType>[]>();

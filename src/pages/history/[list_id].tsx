@@ -1,16 +1,17 @@
 import Head from "next/head";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { prisma } from "../../../prisma/prisma";
-import { ShoppingList, ShoppingListState } from "@prisma/client";
+import { ShoppingList } from "@prisma/client";
 import { WithSerializedDates } from "../../../types/generic";
-import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { MdKeyboardBackspace } from "react-icons/md";
 import DateComponent from "@/components/date";
 import { groupItemsByCategory } from "@/lib/helpers";
 import IteminShoppingHistory from "@/components/item_in_shopping_history";
+import { ReactElement } from "react";
+import AppLayout from "@/components/app_layout";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -91,3 +92,7 @@ export default function Page({ shoppingList }: PageProps) {
     </>
   );
 }
+
+Page.getLayout = function getLayout(page: ReactElement) {
+  return <AppLayout>{page}</AppLayout>;
+};

@@ -3,43 +3,25 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import type { NextPage } from "next";
 import { SessionProvider, useSession } from "next-auth/react";
-import { ReactElement } from "react";
-import AppLayout from "@/components/app_layout";
+import { ReactElement, ReactNode } from "react";
 
-export type NextPageWithAuth<P = {}, IP = P> = NextPage<P, IP> & {
+export type NextPageWithLayoutAndAuth<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
   auth?: boolean;
 };
 
-type AppPropsWithAuth = AppProps & {
-  Component: NextPageWithAuth;
+type AppPropsWithLayoutAndAuth = AppProps & {
+  Component: NextPageWithLayoutAndAuth;
 };
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
-}: AppPropsWithAuth) {
+}: AppPropsWithLayoutAndAuth) {
+  const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <SessionProvider session={session}>
-      <AppLayout>
-        {Component.auth ? (
-          <Auth>
-            <Component {...pageProps} />
-          </Auth>
-        ) : (
-          <Component {...pageProps} />
-        )}
-      </AppLayout>
+      {getLayout(<Component {...pageProps} />)}
     </SessionProvider>
   );
-}
-
-function Auth({ children }: { children: ReactElement }) {
-  // if `{ required: true }` is supplied, `status` can only be "loading" or "authenticated"
-  const { status } = useSession({ required: true });
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  return children;
 }

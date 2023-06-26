@@ -7,6 +7,8 @@ import { ShoppingList, ShoppingListState } from "@prisma/client";
 import { WithSerializedDates } from "../../../types/generic";
 import dayjs from "dayjs";
 import ShoppingListInfo from "@/components/shopping_list_info";
+import { ReactElement } from "react";
+import AppLayout from "@/components/app_layout";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -63,6 +65,10 @@ export default function History({ shoppingLists }: PageProps) {
   );
 }
 
+History.getLayout = function getLayout(page: ReactElement) {
+  return <AppLayout>{page}</AppLayout>;
+};
+
 function groupShoppingListsByMonth(
   shoppingLists: WithSerializedDates<ShoppingList>[]
 ) {
@@ -79,3 +85,4 @@ function groupShoppingListsByMonth(
   }
   return result;
 }
+

@@ -1,15 +1,15 @@
 import Head from "next/head";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { prisma } from "../../prisma/prisma";
-import { ShoppingList, ShoppingListState } from "@prisma/client";
+import { ShoppingListState } from "@prisma/client";
 import { useRouter } from "next/router";
-import DateComponent from "@/components/date";
 import { getShoppingStatistics } from "@/lib/helpers";
-import IteminShoppingHistory from "@/components/item_in_shopping_history";
 import TopList from "@/components/top_list";
 import MonthChart from "@/components/month_chart";
+import { ReactElement } from "react";
+import AppLayout from "@/components/app_layout";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -68,3 +68,7 @@ export default function Page({ statistics }: PageProps) {
     </>
   );
 }
+
+Page.getLayout = function getLayout(page: ReactElement) {
+  return <AppLayout>{page}</AppLayout>;
+};

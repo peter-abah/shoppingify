@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { prisma } from "../../prisma/prisma";
 import { ShoppingListState } from "@prisma/client";
-import { useRouter } from "next/router";
 import { getShoppingStatistics } from "@/lib/helpers";
 import TopList from "@/components/top_list";
 import MonthChart from "@/components/month_chart";
@@ -38,7 +37,6 @@ type PageProps = {
   statistics: ReturnType<typeof getShoppingStatistics>;
 };
 export default function Page({ statistics }: PageProps) {
-  const router = useRouter();
   console.log({ statistics });
 
   return (

@@ -14,10 +14,6 @@ type Props = {
   data: { name: string; items: number }[];
 };
 function MonthChart({ data }: Props) {
-  if (data.length < 3) {
-    return null;
-  }
-
   const sorted = padAndSortData(data);
   return (
     <section className="py-8">
@@ -41,9 +37,10 @@ function padAndSortData(data: Props["data"], padTo = 7) {
   let result = [...data];
   result.sort(
     (a, b) =>
-      (monthToNumberMap.get(b.name) || 0) - (monthToNumberMap.get(a.name) || 0)
+      (monthToNumberMap.get(a.name) || 0) - (monthToNumberMap.get(b.name) || 0)
   );
   result = result.slice(-padTo);
+  console.log(result);
 
   if (result.length === 7) return result;
 

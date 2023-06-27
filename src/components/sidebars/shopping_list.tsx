@@ -10,10 +10,9 @@ import ConfirmModal from "../confirm_modal";
 import useActiveShoppingList from "@/hooks/useActiveShoppingList";
 import { KeyedMutator } from "swr";
 import { groupItemsByCategory } from "@/lib/helpers";
-import { useBoolean } from "usehooks-ts";
 
 export default function ShoppingList() {
-  const { shoppingList, isFetching, mutate } = useActiveShoppingList();
+  const { shoppingList, isFetching, fetchNewActiveList } = useActiveShoppingList();
   const activeList = useAppStore((state) => state.activeList);
   const uiState = useAppStore((state) => state.activeListUIState);
   const { setActiveList, setActiveSideBar, setActiveListUIState } = useAppStore(
@@ -114,7 +113,7 @@ export default function ShoppingList() {
       activeList.items.length === 0 ? (
         <NameForm />
       ) : (
-        <Buttons mutate={mutate} />
+        <Buttons fetchNewActiveList={fetchNewActiveList} />
       )}
     </div>
   );
@@ -169,8 +168,8 @@ function NameForm() {
   );
 }
 
-type ButtonsProps = { mutate: KeyedMutator<any> };
-function Buttons({ mutate }: ButtonsProps) {
+type ButtonsProps = { fetchNewActiveList: () => void };
+function Buttons({ fetchNewActiveList }: ButtonsProps) {
   const [isCanceling, setIsCanceling] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -182,7 +181,7 @@ function Buttons({ mutate }: ButtonsProps) {
     setIsCanceling(false);
 
     // Fetch new active list
-    mutate();
+    fetchNewActiveList();
   };
 
   const handleComplete = async () => {
@@ -191,7 +190,7 @@ function Buttons({ mutate }: ButtonsProps) {
     setIsCompleting(false);
 
     // Fetch new list
-    mutate();
+    fetchNewActiveList();
   };
   return (
     <div

@@ -17,9 +17,13 @@ function useActiveShoppingList() {
     isLoading,
     error,
     isValidating,
-    mutate,
+    fetchNewActiveList: mutate,
     isFetching: isLoading || isValidating,
   };
 }
+
+/* 
+* Check if user is logged inn
+*/
 
 export default useActiveShoppingList;

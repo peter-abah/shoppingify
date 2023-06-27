@@ -43,9 +43,10 @@ async function updateHandler(
     return;
   }
 
+  const { updatedAt, ...rest } = shoppingList;
   const result = await prisma.shoppingList.update({
     where: { id: list_id },
-    data: { ...shoppingList },
+    data: { ...rest },
   });
   res.status(200).json({ shoppingList: result });
 }

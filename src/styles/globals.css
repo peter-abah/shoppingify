@@ -22,6 +22,21 @@ body {
   background-color: var(--item-color);
 }
 
+.active-nav-link {
+  position: relative;
+}
+
+.active-nav-link:before {
+  content: "";
+  width: 5px;
+  height: 200%;
+  position: absolute;
+  top: -50%;
+  border-radius: 0 12px 12px 0;
+  left: 0;
+  background-color: #F9A109;
+}
+
 @media screen and (min-width: 48rem) {
   .main-container {
     padding: 0 5rem;

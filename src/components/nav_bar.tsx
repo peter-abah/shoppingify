@@ -5,16 +5,20 @@ import {
   MdShoppingCart,
 } from "react-icons/md";
 import { useSession, signOut } from "next-auth/react";
-import Link from "next/link";
+import Link, { LinkProps } from "next/link";
 import { ActiveSideBar, useAppStore } from "@/lib/store";
 import useWindowDimensions from "@/hooks/useWindowDimesions";
 import OptionsMenu from "./options_menu";
+import { useRouter } from "next/router";
+import clsx from "clsx";
+import { AnchorHTMLAttributes } from "react";
 
 export default function NavBar() {
   const { data: session } = useSession({ required: true });
   const activeSideBar = useAppStore((state) => state.activeSideBar);
   const { setActiveSideBar } = useAppStore((state) => state.actions);
   const { width } = useWindowDimensions();
+  const router = useRouter();
 
   const toggleShoppingList = () => {
     // Only toggle shopping list for tablets and mobile phones
@@ -51,19 +55,31 @@ export default function NavBar() {
         options={[{ node: "Sign out", onClick: signOut }]}
       />
 
-      <ol className="flex flex-col gap-10">
-        <li>
-          <Link href="/">
+      <ol className="flex flex-col gap-10 w-full items-center">
+        <li
+          className={clsx("w-full grid place-items-center", {
+            "active-nav-link": router.pathname === "/",
+          })}
+        >
+          <Link href="/" className="hover:scale-110">
             <MdList className="text-2xl" />
           </Link>
         </li>
-        <li>
-          <Link href="/history">
+        <li
+          className={clsx("w-full grid place-items-center", {
+            "active-nav-link": router.pathname === "/history",
+          })}
+        >
+          <Link href="/history" className="hover:scale-110">
             <MdReplay className="text-2xl" />
           </Link>
         </li>
-        <li>
-          <Link href="/statistics">
+        <li
+          className={clsx("w-full grid place-items-center", {
+            "active-nav-link": router.pathname === "/statistics",
+          })}
+        >
+          <Link href="/statistics" className="hover:scale-110">
             <MdOutlineInsertChartOutlined className="text-2xl" />
           </Link>
         </li>

@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ItemInShoppingList, ShoppingListState } from "@prisma/client";
+import { ShoppingListState } from "@prisma/client";
 import clsx from "clsx";
 import { MdEdit } from "react-icons/md";
 import Spinner from "../spinner";
 import { useAppStore, ActiveSideBar, ShoppingListUIState } from "@/lib/store";
 import ItemInList from "../item_in_list";
+import ConfirmModal from "../confirm_modal";
 import useActiveShoppingList from "@/hooks/useActiveShoppingList";
 import { KeyedMutator } from "swr";
 import { groupItemsByCategory } from "@/lib/helpers";
+import { useBoolean } from "usehooks-ts";
 
 export default function ShoppingList() {
   const { shoppingList, isFetching, mutate } = useActiveShoppingList();
@@ -171,15 +173,10 @@ type ButtonsProps = { mutate: KeyedMutator<any> };
 function Buttons({ mutate }: ButtonsProps) {
   const [isCanceling, setIsCanceling] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const { setListState } = useAppStore((state) => state.actions);
 
   const handleCancel = async () => {
-    // TODO: replace with a modal
-    const shouldCancel = window.confirm(
-      "Are you sure you want to cancel the list"
-    );
-    if (!shouldCancel) return;
-
     setIsCanceling(true);
     await setListState(ShoppingListState["CANCELED"]);
     setIsCanceling(false);
@@ -202,7 +199,7 @@ function Buttons({ mutate }: ButtonsProps) {
                     md:w-[24rem] h-[8rem] items-center bg-white z-30"
     >
       <button
-        onClick={handleCancel}
+        onClick={() => setShowCancelModal(true)}
         className="py-4 flex items-center px-6 rounded-xl font-bold"
       >
         <span>cancel</span>
@@ -219,6 +216,13 @@ function Buttons({ mutate }: ButtonsProps) {
           <Spinner className="fill-white ml-3" loading={isCompleting} />
         )}
       </button>
+
+      <ConfirmModal
+        text="Are you sure you want to cancel this list"
+        onConfirm={handleCancel}
+        onCancel={() => setShowCancelModal(false)}
+        isOpen={showCancelModal}
+      />
     </div>
   );
 }

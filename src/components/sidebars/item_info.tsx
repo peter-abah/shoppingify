@@ -2,6 +2,7 @@ import { ActiveSideBar } from "@/lib/store";
 import { useAppStore } from "@/lib/store";
 import { useState } from "react";
 import { MdKeyboardBackspace } from "react-icons/md";
+import ConfirmModal from "../confirm_modal";
 import Spinner from "../spinner";
 
 const ItemInfo = () => {
@@ -10,6 +11,7 @@ const ItemInfo = () => {
   const { addItemToList, popFromSideBarHistory, deleteItem } = useAppStore(
     (state) => state.actions
   );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   if (!currentItem) {
     return null;
@@ -21,10 +23,6 @@ const ItemInfo = () => {
   };
 
   const onDeleteItem = async () => {
-    // TODO: Replace with custom modal
-    const shouldDelete = window.confirm("Are you sure you want to delete item");
-    if (!shouldDelete) return;
-
     setIsDeleting(true);
     await deleteItem(currentItem.id);
     setIsDeleting(false);
@@ -34,8 +32,10 @@ const ItemInfo = () => {
   const { name, note, imageUrl, categoryName } = currentItem;
 
   return (
-    <div className="sidebar bg-white px-6 pt-4 md:px-11 md:pt-7 md:w-[24rem] h-[calc(100vh-8rem)] 
-                    pb-4 fixed top-0 right-0 overflow-y-auto z-20">
+    <div
+      className="sidebar bg-white px-6 pt-4 md:px-11 md:pt-7 md:w-[24rem] h-[calc(100vh-8rem)] 
+                    pb-4 fixed top-0 right-0 overflow-y-auto z-20"
+    >
       <button
         onClick={() => popFromSideBarHistory()}
         className="flex text-[#F9A109] mb-9"
@@ -69,10 +69,12 @@ const ItemInfo = () => {
         <p className="text-lg font-medium">{note || "No note"}</p>
       </div>
 
-      <div className="flex justify-center gap-5 fixed bottom-0 right-0  md:w-[24rem] h-[8rem] 
-                      items-center bg-white z-30 w-[min(calc(100vw-4rem),24rem)]">
+      <div
+        className="flex justify-center gap-5 fixed bottom-0 right-0  md:w-[24rem] h-[8rem] 
+                      items-center bg-white z-30 w-[min(calc(100vw-4rem),24rem)]"
+      >
         <button
-          onClick={onDeleteItem}
+          onClick={() => setShowDeleteModal(true)}
           className="flex items-center px-6 py-4 font-bold rounded-xl"
         >
           <span>delete</span>
@@ -87,6 +89,13 @@ const ItemInfo = () => {
           Add to list
         </button>
       </div>
+
+      <ConfirmModal
+        text="Are you sure you want to delete this item"
+        onConfirm={onDeleteItem}
+        onCancel={() => setShowDeleteModal(false)}
+        isOpen={showDeleteModal}
+      />
     </div>
   );
 };

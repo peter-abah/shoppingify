@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { MdCheck, MdClose } from "react-icons/md";
 import { useToggle } from "usehooks-ts";
 import { WithSerializedDates } from "../../types/generic";
+import ConfirmModal from "./confirm_modal";
 import OptionsMenu from "./options_menu";
 import Spinner from "./spinner";
 
@@ -17,13 +18,9 @@ function Category({ categoryId }: Props) {
   const categories = useAppStore((state) => state.categories);
   const { deleteCategory } = useAppStore((state) => state.actions);
   const category = categories.find((c) => c.id === categoryId);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const onDelete = async () => {
-    const shouldDelete = window.confirm(
-      "Are you sure you want to delete this category. Items in categpry will also be deleted"
-    );
-    if (!shouldDelete) return;
-
     setIsDeleting(true);
     await deleteCategory(categoryId);
     setIsDeleting(true);
@@ -45,12 +42,18 @@ function Category({ categoryId }: Props) {
               <OptionsMenu
                 options={[
                   { node: "Edit", onClick: toggleShouldEdit },
-                  { node: "Delete", onClick: onDelete },
+                  { node: "Delete", onClick: () => setShowDeleteModal(true) },
                 ]}
               />
             ))}
         </>
       )}
+      <ConfirmModal
+        text="Are you sure you want to delete this category. Items in categpry will also be deleted"
+        onConfirm={onDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isOpen={showDeleteModal}
+      />
     </header>
   );
 }

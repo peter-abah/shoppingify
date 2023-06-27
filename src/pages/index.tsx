@@ -52,7 +52,7 @@ export default function Home({ categories, items }: HomeProps) {
   }
 
   const filteredItems = itemsFromStore.filter((i) =>
-    i.name.toLocaleLowerCase().startsWith(searchInput.toLocaleLowerCase())
+    i.name.toLocaleLowerCase().includes(searchInput.toLocaleLowerCase())
   );
   const itemsByCategory = [...groupItemsByCategory(filteredItems).entries()];
 

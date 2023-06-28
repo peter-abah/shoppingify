@@ -16,7 +16,7 @@ type Props = {
 };
 function ItemInList({ item }: Props) {
   const [isEdit, setIsEdit] = useState(false);
-  const listUIState = useAppStore((state) => state.activeListUIState);
+  const listUIState = useAppStore((state) => state.ui.activeListUIState);
   const { updateItemInActiveList } = useAppStore((state) => state.actions);
 
   return (

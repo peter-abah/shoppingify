@@ -31,18 +31,19 @@ const TIMEOUT_INTERVAL_TO_SAVE_LIST = 5000;
 export interface AppStore {
   user: ClientUser | null;
   activeList: WithSerializedDates<ShoppingList> | null;
-  activeListUIState: ShoppingListUIState;
-  isListLoading: boolean;
-  currentItem: WithSerializedDates<Item> | null;
-  activeSideBar: ActiveSideBar;
-  sidebarHistory: ActiveSideBar[];
   items: WithSerializedDates<Item>[];
   categories: WithSerializedDates<Category>[];
   timeoutIDToSaveList: number | null;
-  searchInput: string;
   // Store completed or cancelled shopping lists for local user
   shoppingListsHistory: WithSerializedDates<ShoppingList>[];
-
+  ui: {
+    activeListUIState: ShoppingListUIState;
+    isListLoading: boolean;
+    currentItem: WithSerializedDates<Item> | null;
+    activeSideBar: ActiveSideBar;
+    sidebarHistory: ActiveSideBar[];
+    searchInput: string;
+  };
   actions: {
     initData: (
       items: WithSerializedDates<Item>[],
@@ -91,16 +92,18 @@ export interface AppStore {
 const initialData = {
   user: null,
   activeList: null,
-  activeListUIState: ShoppingListUIState["EDITING"],
-  isListLoading: true,
-  currentItem: null,
-  activeSideBar: ActiveSideBar["SHOPPING_LIST"],
-  sidebarHistory: [ActiveSideBar["SHOPPING_LIST"]],
   items: [],
   categories: [],
   timeoutIDToSaveList: null,
-  searchInput: "",
   shoppingListsHistory: [],
+  ui: {
+    activeListUIState: ShoppingListUIState["EDITING"],
+    sidebarHistory: [ActiveSideBar["SHOPPING_LIST"]],
+    isListLoading: true,
+    currentItem: null,
+    activeSideBar: ActiveSideBar["SHOPPING_LIST"],
+    searchInput: "",
+  },
 };
 
 export const useAppStore = create<AppStore>()(
@@ -124,7 +127,7 @@ export const useAppStore = create<AppStore>()(
               state.items.push(item);
             });
 
-            console.log({new: get()})
+            console.log({ new: get() });
             return item;
           },
 
@@ -327,51 +330,59 @@ export const useAppStore = create<AppStore>()(
           },
 
           setIsListLoading: (isListLoading) => {
-            set({ isListLoading });
+            set((state: AppStore) => {
+              state.ui.isListLoading = isListLoading;
+            });
           },
 
           setCurrentItem: (item) => {
-            set({ currentItem: item });
+            set((state: AppStore) => {
+              state.ui.currentItem = item;
+            });
           },
 
           setActiveSideBar: (value) => {
             set((state: AppStore) => {
-              state.activeSideBar = value;
+              state.ui.activeSideBar = value;
 
               // Clear history if there is no active sidebar
               if (value === ActiveSideBar["NONE"]) {
-                state.sidebarHistory = [];
+                state.ui.sidebarHistory = [];
               } else {
-                state.sidebarHistory.push(value);
+                state.ui.sidebarHistory.push(value);
               }
             });
           },
 
           setActiveListUIState: (value) => {
-            set({ activeListUIState: value });
+            set((state: AppStore) => {
+              state.ui.activeListUIState = value;
+            });
           },
 
           addSideBarToHistory: (value) =>
             set((state: AppStore) => {
-              state.sidebarHistory.push(value);
+              state.ui.sidebarHistory.push(value);
             }),
 
           popFromSideBarHistory: () => {
-            const sidebarHistory = get().sidebarHistory;
+            const sidebarHistory = get().ui.sidebarHistory;
             if (sidebarHistory.length < 1) return;
 
             const value = sidebarHistory[sidebarHistory.length - 1];
             set((state: AppStore) => {
-              state.sidebarHistory.pop();
-              state.activeSideBar =
-                state.sidebarHistory[state.sidebarHistory.length - 1] ||
+              state.ui.sidebarHistory.pop();
+              state.ui.activeSideBar =
+                state.ui.sidebarHistory[state.ui.sidebarHistory.length - 1] ||
                 ActiveSideBar["NONE"];
             });
             return value;
           },
 
           setSearchInput: (value) => {
-            set({ searchInput: value });
+            set((state: AppStore) => {
+              state.ui.searchInput = value;
+            });
           },
 
           pushToShoppingListsHistory: (list) => {
@@ -397,6 +408,12 @@ export const useAppStore = create<AppStore>()(
         name: "shoppingify-storage",
         merge: (persistedState, currentState) =>
           mergeDeep(currentState, persistedState),
+        partialize: (state) =>
+          Object.fromEntries(
+            Object.entries(state).filter(
+              ([key]) => !["activeSideBar"].includes(key)
+            )
+          ),
       }
     )
   )

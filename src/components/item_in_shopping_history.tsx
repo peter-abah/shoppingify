@@ -1,5 +1,4 @@
 import { ItemInShoppingList } from "@prisma/client";
-import { MdAdd } from "react-icons/md";
 
 type Props = {
   item: ItemInShoppingList;

@@ -48,7 +48,7 @@ export default function Home({ categories, items, user }: HomeProps) {
   const isMounted = useIsMounted();
   const { initData } = useAppStore((state) => state.actions);
   const itemsFromStore = useAppStore((state) => state.items);
-  const searchInput = useAppStore((state) => state.searchInput);
+  const searchInput = useAppStore((state) => state.ui.searchInput);
 
   useEffect(() => {
     if (user?.accountType === "online") {

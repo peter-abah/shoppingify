@@ -14,7 +14,7 @@ export default function ShoppingList() {
   const { shoppingList, isFetching, fetchNewActiveList } =
     useActiveShoppingList();
   const activeList = useAppStore((state) => state.activeList);
-  const uiState = useAppStore((state) => state.activeListUIState);
+  const uiState = useAppStore((state) => state.ui.activeListUIState);
   const { setActiveList, setActiveSideBar, setActiveListUIState } = useAppStore(
     (state) => state.actions
   );

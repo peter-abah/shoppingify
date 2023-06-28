@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { MdSearch } from "react-icons/md";
 
 export default function Header() {
-  const searchInput = useAppStore((state) => state.searchInput);
+  const searchInput = useAppStore((state) => state.ui.searchInput);
   const { setSearchInput } = useAppStore((state) => state.actions);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

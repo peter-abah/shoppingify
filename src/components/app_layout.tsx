@@ -26,7 +26,7 @@ type Props = {
 };
 const AppLayout = ({ children }: Props) => {
   useAuth();
-  const activeSideBar = useAppStore((state) => state.activeSideBar);
+  const activeSideBar = useAppStore((state) => state.ui.activeSideBar);
   const { setActiveSideBar } = useAppStore((state) => state.actions);
   const { width } = useWindowDimensions();
 

@@ -4,7 +4,7 @@ import {
   MdReplay,
   MdShoppingCart,
 } from "react-icons/md";
-import { useSession, signOut, signIn } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { ActiveSideBar, useAppStore } from "@/lib/store";
 import useWindowDimensions from "@/hooks/use_window_dimensions";
@@ -15,8 +15,10 @@ import { resetLocalAccount } from "@/lib/client";
 
 export default function NavBar() {
   const { data: session } = useSession();
-  const activeSideBar = useAppStore((state) => state.activeSideBar);
-  const { setActiveSideBar } = useAppStore((state) => state.actions);
+  const activeSideBar = useAppStore((state) => state.ui.activeSideBar);
+  const { setActiveSideBar, resetStoreState } = useAppStore(
+    (state) => state.actions
+  );
   const { width } = useWindowDimensions();
   const router = useRouter();
 
@@ -31,12 +33,14 @@ export default function NavBar() {
     }
   };
 
+  const resetAndSignOut = () => {
+    resetStoreState();
+    signOut();
+  };
+
   const options = session
-    ? [{ node: "Sign out", onClick: signOut }]
-    : [
-        { node: "Reset account", onClick: resetLocalAccount },
-        { node: "Sign in", onClick: signIn },
-      ];
+    ? [{ node: "Sign out", onClick: resetAndSignOut }]
+    : [{ node: "Reset account", onClick: resetLocalAccount }];
 
   return (
     <nav
@@ -45,7 +49,8 @@ export default function NavBar() {
     >
       <OptionsMenu
         menuButton={
-          <button>
+    
+    <button>
             {session?.user?.image ? (
               <img
                 className="w-10 h-10 rounded-full hover:scale-110"

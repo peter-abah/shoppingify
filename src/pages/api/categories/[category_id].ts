@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../../../prisma/prisma";
 import { Category } from "@prisma/client";
-import { authenticate } from "@/lib/api";
+import { authenticate } from "../index";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {

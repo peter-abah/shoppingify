@@ -1,6 +1,10 @@
-import { ItemInShoppingList, ShoppingList } from "@prisma/client";
+import {
+  ItemInShoppingList,
+  ShoppingList,
+} from "@prisma/client";
 import { DEFAULT, MapWithDefault } from "./map_with_default";
 import dayjs from "dayjs";
+import { WithSerializedDates } from "../../types/generic";
 
 export function groupItemsByCategory(items: ItemInShoppingList[]) {
   const result = new Map<string, ItemInShoppingList[]>();
@@ -15,7 +19,9 @@ export function groupItemsByCategory(items: ItemInShoppingList[]) {
   return result;
 }
 
-export function getShoppingStatistics(shoppingLists: ShoppingList[]) {
+export function getShoppingStatistics(
+  shoppingLists: (ShoppingList | WithSerializedDates<ShoppingList>)[]
+) {
   const itemCountByName = new MapWithDefault<string, number>([[DEFAULT, 0]]);
   const itemCountByCategory = new MapWithDefault<string, number>([
     [DEFAULT, 0],
@@ -100,3 +106,25 @@ export const monthToNumberMap = new Map([
   ["November", 10],
   ["December", 11],
 ]);
+
+export function isObject(item: any) {
+  return item && typeof item === "object" && !Array.isArray(item);
+}
+
+export function mergeDeep(target: any, ...sources: any[]): any {
+  if (!sources.length) return target;
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        mergeDeep(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+
+  return mergeDeep(target, ...sources);
+}

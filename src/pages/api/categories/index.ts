@@ -1,7 +1,7 @@
 import { Category } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../../../prisma/prisma";
-import { authenticate } from "@/lib/api";
+import { authenticate } from "../index";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
@@ -22,7 +22,6 @@ async function createHandler(
   if (!session) return;
 
   const { name } = req.body;
-  console.log({name})
   const category = await prisma.category.create({
     data: { name, ownerId: session!.user.id },
   });

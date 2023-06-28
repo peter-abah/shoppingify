@@ -2,7 +2,7 @@ import "../styles/globals.css";
 
 import type { AppProps } from "next/app";
 import type { NextPage } from "next";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import { ReactElement, ReactNode } from "react";
 
 export type NextPageWithLayoutAndAuth<P = {}, IP = P> = NextPage<P, IP> & {

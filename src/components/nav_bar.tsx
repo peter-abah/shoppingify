@@ -4,17 +4,17 @@ import {
   MdReplay,
   MdShoppingCart,
 } from "react-icons/md";
-import { useSession, signOut } from "next-auth/react";
-import Link, { LinkProps } from "next/link";
+import { useSession, signOut, signIn } from "next-auth/react";
+import Link from "next/link";
 import { ActiveSideBar, useAppStore } from "@/lib/store";
-import useWindowDimensions from "@/hooks/useWindowDimesions";
+import useWindowDimensions from "@/hooks/use_window_dimensions";
 import OptionsMenu from "./options_menu";
 import { useRouter } from "next/router";
 import clsx from "clsx";
-import { AnchorHTMLAttributes } from "react";
+import { resetLocalAccount } from "@/lib/client";
 
 export default function NavBar() {
-  const { data: session } = useSession({ required: true });
+  const { data: session } = useSession();
   const activeSideBar = useAppStore((state) => state.activeSideBar);
   const { setActiveSideBar } = useAppStore((state) => state.actions);
   const { width } = useWindowDimensions();
@@ -30,6 +30,13 @@ export default function NavBar() {
       setActiveSideBar(ActiveSideBar["SHOPPING_LIST"]);
     }
   };
+
+  const options = session
+    ? [{ node: "Sign out", onClick: signOut }]
+    : [
+        { node: "Reset account", onClick: resetLocalAccount },
+        { node: "Sign in", onClick: signIn },
+      ];
 
   return (
     <nav
@@ -52,7 +59,7 @@ export default function NavBar() {
             )}
           </button>
         }
-        options={[{ node: "Sign out", onClick: signOut }]}
+        options={options}
       />
 
       <ol className="flex flex-col gap-10 w-full items-center">

@@ -7,12 +7,12 @@ import Spinner from "../spinner";
 import { useAppStore, ActiveSideBar, ShoppingListUIState } from "@/lib/store";
 import ItemInList from "../item_in_list";
 import ConfirmModal from "../confirm_modal";
-import useActiveShoppingList from "@/hooks/useActiveShoppingList";
-import { KeyedMutator } from "swr";
+import useActiveShoppingList from "@/hooks/use_active_shopping_list";
 import { groupItemsByCategory } from "@/lib/helpers";
 
 export default function ShoppingList() {
-  const { shoppingList, isFetching, fetchNewActiveList } = useActiveShoppingList();
+  const { shoppingList, isFetching, fetchNewActiveList } =
+    useActiveShoppingList();
   const activeList = useAppStore((state) => state.activeList);
   const uiState = useAppStore((state) => state.activeListUIState);
   const { setActiveList, setActiveSideBar, setActiveListUIState } = useAppStore(
@@ -21,12 +21,14 @@ export default function ShoppingList() {
 
   // Update active list only if the value from hook is an updated version
   useEffect(() => {
-    if (
-      (activeList &&
-        shoppingList &&
-        new Date(shoppingList.updatedAt) > new Date(activeList.updatedAt)) ||
-      activeList == null
-    ) {
+    const isShoppingListFromClient = shoppingList?.ownerId === "";
+    const isListFromHookIsNew =
+      activeList &&
+      shoppingList &&
+      !isShoppingListFromClient &&
+      new Date(shoppingList.updatedAt) > new Date(activeList.updatedAt);
+
+    if (isListFromHookIsNew || activeList == null) {
       setActiveList(shoppingList);
     }
   }, [activeList?.updatedAt, shoppingList?.updatedAt]);

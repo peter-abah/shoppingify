@@ -1,7 +1,7 @@
-import { ShoppingList, ShoppingListState } from "@prisma/client";
+import { ShoppingList } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../../../prisma/prisma";
-import { authenticate } from "@/lib/api";
+import { authenticate } from "../index";
 
 type ResponseData =
   | {

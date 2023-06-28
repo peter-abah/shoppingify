@@ -3,24 +3,22 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { prisma } from "../../prisma/prisma";
-import type { Item as ItemType } from "@prisma/client";
+import type { Category as TCategory, Item as TItem } from "@prisma/client";
 import Item from "@/components/item";
 import Category from "@/components/category";
 import Header from "@/components/header";
 import { useAppStore } from "@/lib/store";
 import { WithSerializedDates } from "../../types/generic";
-import { ReactElement } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import AppLayout from "@/components/app_layout";
+import { ClientUser } from "../../types";
+import useIsMounted from "@/hooks/use_is_mounted";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
+
   if (!session) {
-    return {
-      redirect: {
-        destination: "/api/auth/signin",
-        permanent: false,
-      },
-    };
+    return { props: { categories: [], items: [], user: null } };
   }
 
   const categories = await prisma.category.findMany({
@@ -31,35 +29,36 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   });
 
   // Serialize props to convert Date object to string since Nextjs only serializes scalar values
-  const props = JSON.parse(JSON.stringify({ categories, items }));
+  const props = JSON.parse(
+    JSON.stringify({
+      categories,
+      items,
+      user: { accountType: "online", ...session.user },
+    })
+  );
   return { props };
 };
 
-// Keep track of when site is just loaded
-let isSiteStart = true;
-
-type HomeProps = InferGetServerSidePropsType<typeof getServerSideProps>;
-export default function Home({ categories, items }: HomeProps) {
+type HomeProps = {
+  categories: WithSerializedDates<TCategory>[];
+  items: WithSerializedDates<TItem>[];
+  user?: ClientUser;
+};
+export default function Home({ categories, items, user }: HomeProps) {
+  const isMounted = useIsMounted();
   const { initData } = useAppStore((state) => state.actions);
-  let itemsFromStore = useAppStore((state) => state.items);
+  const itemsFromStore = useAppStore((state) => state.items);
   const searchInput = useAppStore((state) => state.searchInput);
 
-  // To avoid discrepancies between server-side and client-side rendering,
-  // set the `itemsFromStore` variable to the items from the page props during app start.
-  // This ensures consistency in the HTML output.
-  if (isSiteStart) {
-    itemsFromStore = items;
+  if (user?.accountType === "online") {
+    initData(items, categories);
   }
 
-  const filteredItems = itemsFromStore.filter((i) =>
+  const itemsToRender = isMounted ? itemsFromStore : items;
+  const filteredItems = itemsToRender.filter((i) =>
     i.name.toLocaleLowerCase().includes(searchInput.toLocaleLowerCase())
   );
   const itemsByCategory = [...groupItemsByCategory(filteredItems).entries()];
-
-  if (isSiteStart) {
-    initData(items, categories);
-    isSiteStart = false;
-  }
 
   return (
     <>
@@ -93,8 +92,8 @@ Home.getLayout = function getLayout(page: ReactElement) {
   return <AppLayout>{page}</AppLayout>;
 };
 
-function groupItemsByCategory(items: WithSerializedDates<ItemType>[]) {
-  const result = new Map<string, WithSerializedDates<ItemType>[]>();
+function groupItemsByCategory(items: WithSerializedDates<TItem>[]) {
+  const result = new Map<string, WithSerializedDates<TItem>[]>();
   for (let item of items) {
     if (result.has(item.categoryId)) {
       result.get(item.categoryId)!.push(item);

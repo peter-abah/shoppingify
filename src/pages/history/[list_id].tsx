@@ -12,19 +12,22 @@ import { groupItemsByCategory } from "@/lib/helpers";
 import IteminShoppingHistory from "@/components/item_in_shopping_history";
 import { ReactElement } from "react";
 import AppLayout from "@/components/app_layout";
+import { ClientUser } from "../../../types";
+import useIsMounted from "@/hooks/use_is_mounted";
+import { useAppStore } from "@/lib/store";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { list_id } = context.query as { list_id: string };
+
   const session = await getServerSession(context.req, context.res, authOptions);
   if (!session) {
     return {
-      redirect: {
-        destination: "/api/auth/signin",
-        permanent: false,
+      props: {
+        shoppingList: null,
+        user: null,
       },
     };
   }
-
-  const { list_id } = context.query as { list_id: string };
 
   const shoppingList = await prisma.shoppingList.findFirst({
     where: {
@@ -34,15 +37,32 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   });
 
   // Serialize props to convert Date object to string since Nextjs only serializes scalar values
-  const props = JSON.parse(JSON.stringify({ shoppingList }));
+  const props = JSON.parse(
+    JSON.stringify({
+      shoppingList,
+      user: { ...session.user, accountType: "online" },
+    })
+  );
   return { props };
 };
 
 type PageProps = {
-  shoppingList: WithSerializedDates<ShoppingList> | null;
+  shoppingList?: WithSerializedDates<ShoppingList> | null;
+  user?: ClientUser;
 };
-export default function Page({ shoppingList }: PageProps) {
+
+export default function Page({ shoppingList, user }: PageProps) {
+  const isMounted = useIsMounted();
   const router = useRouter();
+  const shoppingLists = useAppStore((state) => state.shoppingListsHistory);
+  const { setUser } = useAppStore((state) => state.actions);k
+
+  const { list_id } = router.query;
+  shoppingList =
+    user?.accountType === "online" || !isMounted
+      ? shoppingList
+      : shoppingLists.find((s) => s.id === list_id);
+
   const itemsByCategory = shoppingList
     ? [...groupItemsByCategory(shoppingList.items).entries()]
     : [];

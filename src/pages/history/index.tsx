@@ -9,14 +9,17 @@ import dayjs from "dayjs";
 import ShoppingListInfo from "@/components/shopping_list_info";
 import { ReactElement } from "react";
 import AppLayout from "@/components/app_layout";
+import { ClientUser } from "../../../types";
+import { useAppStore } from "@/lib/store";
+import useIsMounted from "@/hooks/use_is_mounted";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
   if (!session) {
     return {
-      redirect: {
-        destination: "/api/auth/signin",
-        permanent: false,
+      props: {
+        shoppingLists: [],
+        user: null,
       },
     };
   }
@@ -30,13 +33,30 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   });
 
   // Serialize props to convert Date object to string since Nextjs only serializes scalar values
-  const props = JSON.parse(JSON.stringify({ shoppingLists }));
+  const props = JSON.parse(
+    JSON.stringify({
+      shoppingLists,
+      user: { ...session.user, accountType: "online" },
+    })
+  );
   return { props };
 };
 
-type PageProps = InferGetServerSidePropsType<typeof getServerSideProps>;
-export default function History({ shoppingLists }: PageProps) {
-  const shoppingListsByMonth = groupShoppingListsByMonth(shoppingLists);
+type PageProps = {
+  shoppingLists: WithSerializedDates<ShoppingList>[];
+  user: ClientUser;
+};
+export default function History({ shoppingLists, user }: PageProps) {
+  const isMounted = useIsMounted();
+  const shoppingListsHistory = useAppStore(
+    (state) => state.shoppingListsHistory
+  );
+
+  const shoppingListsByMonth = groupShoppingListsByMonth(
+    user?.accountType === "online" || !isMounted
+      ? shoppingLists
+      : shoppingListsHistory
+  );
   return (
     <>
       <Head>
@@ -83,6 +103,10 @@ function groupShoppingListsByMonth(
       result.set(monthKey, [shoppingList]);
     }
   }
+
+  // Sort shopping lists by date
+  for (let arr of result.values()) {
+    arr.sort((a, b) => dayjs(b.updatedAt).diff(dayjs(a.updatedAt)));
+  }
   return result;
 }
-

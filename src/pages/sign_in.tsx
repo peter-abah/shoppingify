@@ -8,6 +8,8 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import Head from "next/head";
 import { Quicksand } from "next/font/google";
 import { FcGoogle } from "react-icons/fc";
+import { createLocalAccount } from "@/lib/client";
+import { useRouter } from "next/router";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -17,6 +19,11 @@ const quicksand = Quicksand({
 export default function SignIn({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter();
+  const skipSignIn = () => {
+    createLocalAccount();
+    router.push("/");
+  };
   return (
     <>
       <Head>
@@ -26,7 +33,9 @@ export default function SignIn({
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={`${quicksand.variable} px-6 sm:px-20 lg:px-32 font-sans`}>
+      <main
+        className={`${quicksand.variable} font-sans px-6 sm:px-20 lg:px-32`}
+      >
         <header className="mt-6 mb-12">
           <h1 className="text-[26px] md:text-xl xl:text-[26px] font-bold">
             <span className="text-[#F19101]">Shoppingify </span>
@@ -39,12 +48,21 @@ export default function SignIn({
             <button
               className="flex py-4 px-6 sm:px-16 border border-black rounded-xl items-center font-bold hover:bg-black hover:text-white"
               key={provider.name}
+              type="button"
               onClick={() => signIn(provider.id)}
             >
               <FcGoogle className="text-xl" />
               <span className="ml-4">Continue with {provider.name}</span>
             </button>
           ))}
+
+          <button
+            type="button"
+            onClick={skipSignIn}
+            className="flex mt-4 py-4 px-6 sm:px-16 items-center hover:underline"
+          >
+            Skip Create an Account
+          </button>
         </section>
       </main>
     </>

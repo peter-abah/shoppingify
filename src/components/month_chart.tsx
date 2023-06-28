@@ -40,7 +40,6 @@ function padAndSortData(data: Props["data"], padTo = 7) {
       (monthToNumberMap.get(a.name) || 0) - (monthToNumberMap.get(b.name) || 0)
   );
   result = result.slice(-padTo);
-  console.log(result);
 
   if (result.length === 7) return result;
 

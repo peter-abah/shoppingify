@@ -1,18 +1,31 @@
 import { ReactNode, useEffect } from "react";
-import {Quicksand} from "next/font/google";
+import { Quicksand } from "next/font/google";
+import dynamic from "next/dynamic";
 import NavBar from "@/components/nav_bar";
-import ShoppingList from "@/components/sidebars/shopping_list";
 import ItemInfo from "@/components/sidebars/item_info";
 import ItemForm from "@/components/sidebars/item_form";
 import { useAppStore, ActiveSideBar } from "@/lib/store";
-import useWindowDimensions from "@/hooks/useWindowDimesions";
+import useWindowDimensions from "@/hooks/use_window_dimensions";
+import useAuth from "@/hooks/use_auth";
 
-const quicksand = Quicksand({ subsets: ["latin"], variable: "--font-quicksand" });
+// Import shopping list component as client side only
+const ShoppingList = dynamic(
+  () => import("@/components/sidebars/shopping_list"),
+  {
+    ssr: false,
+  }
+);
+
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  variable: "--font-quicksand",
+});
 
 type Props = {
   children: ReactNode;
 };
 const AppLayout = ({ children }: Props) => {
+  useAuth();
   const activeSideBar = useAppStore((state) => state.activeSideBar);
   const { setActiveSideBar } = useAppStore((state) => state.actions);
   const { width } = useWindowDimensions();

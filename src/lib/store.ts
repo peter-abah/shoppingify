@@ -6,10 +6,13 @@ import {
   ItemInShoppingList,
 } from "@prisma/client";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { ItemFormData } from "@/components/sidebars/item_form";
 import { WithSerializedDates } from "../../types/generic";
+import { ClientUser, ItemData } from "../../types";
+import { mergeDeep } from "./helpers";
+import { categoryAPIActions, itemAPIActions } from "./api";
+import { categoryClientActions, itemClientActions } from "./client";
 
 export enum ActiveSideBar {
   NONE,
@@ -23,14 +26,10 @@ export enum ShoppingListUIState {
   EDITING,
 }
 
-type ItemData = ItemFormData & {
-  categoryId: Category["id"];
-  categoryName: Category["name"];
-};
-
 const TIMEOUT_INTERVAL_TO_SAVE_LIST = 5000;
 
 export interface AppStore {
+  user: ClientUser | null;
   activeList: WithSerializedDates<ShoppingList> | null;
   activeListUIState: ShoppingListUIState;
   isListLoading: boolean;
@@ -41,6 +40,8 @@ export interface AppStore {
   categories: WithSerializedDates<Category>[];
   timeoutIDToSaveList: number | null;
   searchInput: string;
+  // Store completed or cancelled shopping lists for local user
+  shoppingListsHistory: WithSerializedDates<ShoppingList>[];
 
   actions: {
     initData: (
@@ -76,298 +77,325 @@ export interface AppStore {
     addSideBarToHistory: (value: ActiveSideBar) => void;
     popFromSideBarHistory: () => ActiveSideBar | undefined;
     setSearchInput: (value: string) => void;
+    pushToShoppingListsHistory: (
+      list: WithSerializedDates<ShoppingList>
+    ) => void;
+    setShoppingListsHistory: (
+      lists: WithSerializedDates<ShoppingList>[]
+    ) => void;
+    resetStoreState: () => void;
+    setUser: (user: ClientUser) => void;
   };
 }
 
+const initialData = {
+  user: null,
+  activeList: null,
+  activeListUIState: ShoppingListUIState["EDITING"],
+  isListLoading: true,
+  currentItem: null,
+  activeSideBar: ActiveSideBar["SHOPPING_LIST"],
+  sidebarHistory: [ActiveSideBar["SHOPPING_LIST"]],
+  items: [],
+  categories: [],
+  timeoutIDToSaveList: null,
+  searchInput: "",
+  shoppingListsHistory: [],
+};
+
 export const useAppStore = create<AppStore>()(
   devtools(
-    immer((set, get) => ({
-      activeList: null,
-      activeListUIState: ShoppingListUIState["EDITING"],
-      isListLoading: true,
-      currentItem: null,
-      activeSideBar: ActiveSideBar["SHOPPING_LIST"],
-      sidebarHistory: [ActiveSideBar["SHOPPING_LIST"]],
-      items: [],
-      categories: [],
-      timeoutIDToSaveList: null,
-      searchInput: "",
+    persist(
+      immer((set, get) => ({
+        ...initialData,
+        actions: {
+          initData: (items, categories) => {
+            set({ items, categories });
+          },
 
-      actions: {
-        initData: (items, categories) => {
-          set({ items, categories });
-        },
+          createItem: async (itemData) => {
+            const { user } = get();
+            const item =
+              user?.accountType === "online"
+                ? await itemAPIActions.create(itemData)
+                : itemClientActions.create(itemData);
 
-        createItem: async (itemData) => {
-          // TODO: Move this to another function
-          const res = await fetch("/api/items", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(itemData),
-          });
+            set((state: AppStore) => {
+              state.items.push(item);
+            });
+            return item;
+          },
 
-          if (!res.ok) throw res;
+          deleteItem: async (itemID) => {
+            const { user } = get();
+            if (user?.accountType === "online") {
+              await itemAPIActions.delete(itemID);
+            }
 
-          const { item } = await res.json();
-          set((state: AppStore) => {
-            state.items.push(item);
-          });
-          return item;
-        },
+            set((state: AppStore) => {
+              state.items = state.items.filter((item) => item.id !== itemID);
+            });
+          },
 
-        deleteItem: async (itemId) => {
-          // Delete item in database
-          const res = await fetch(`/api/items/${itemId}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          createCategory: async (categoryName) => {
+            const { user } = get();
+            const category =
+              user?.accountType === "online"
+                ? await categoryAPIActions.create(categoryName)
+                : categoryClientActions.create(categoryName);
 
-          if (!res.ok) throw res;
+            set((state: AppStore) => {
+              state.categories.push(category);
+            });
+            return category;
+          },
 
-          set((state: AppStore) => {
-            state.items = state.items.filter((item) => item.id !== itemId);
-          });
-        },
+          updateCategory: async (categoryID, categoryName) => {
+            const { user, categories } = get();
+            const category = categories.find((c) => c.id === categoryID);
+            if (!category) return;
 
-        createCategory: async (categoryName) => {
-          const res = await fetch("/api/categories", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name: categoryName }),
-          });
+            const updatedCategory =
+              user?.accountType === "online"
+                ? await categoryAPIActions.update(categoryID, categoryName)
+                : categoryClientActions.update(category, categoryName);
 
-          if (!res.ok) throw res;
+            set((state: AppStore) => {
+              const index = state.categories.findIndex(
+                (c) => c.id === updatedCategory.id
+              );
+              if (index === -1) return;
 
-          const { category } = await res.json();
-          set((state: AppStore) => {
-            state.categories.push(category);
-          });
-          return category;
-        },
+              state.categories[index] = updatedCategory;
+            });
+            return updatedCategory;
+          },
 
-        updateCategory: async (categoryID, categoryName) => {
-          const res = await fetch(`/api/categories/${categoryID}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name: categoryName }),
-          });
+          deleteCategory: async (categoryID) => {
+            const { user } = get();
+            if (user?.accountType === "online") {
+              await categoryAPIActions.delete(categoryID);
+            }
 
-          if (!res.ok) throw res;
+            set((state: AppStore) => {
+              state.items = state.items.filter(
+                (item) => item.categoryId !== categoryID
+              );
+              state.categories = state.categories.filter(
+                (category) => category.id !== categoryID
+              );
+            });
+          },
 
-          const { category: updatedCategory } = await res.json();
-          set((state: AppStore) => {
-            const index = state.categories.findIndex(
-              (c) => c.id === updatedCategory.id
+          addItemToList: (item) => {
+            // increment count if item already in list
+            let itemInList = get().activeList?.items.find(
+              (i) => i.itemId == item.id
             );
-            if (index === -1) return;
 
-            state.categories[index] = updatedCategory;
-          });
-          return updatedCategory;
-        },
+            if (itemInList) {
+              get().actions.updateItemInActiveList({
+                ...itemInList,
+                count: itemInList.count + 1,
+              });
+              get().actions.saveListToDB();
+            } else {
+              const itemToAdd = {
+                name: item.name,
+                count: 1,
+                cleared: false,
+                category: item.categoryName,
+                itemId: item.id,
+              };
+              set((state: AppStore) => {
+                state.activeList?.items.push(itemToAdd);
+              });
+            }
+            get().actions.saveListToDB();
+          },
 
-        deleteCategory: async (categoryID) => {
-          // Delete item in database
-          const res = await fetch(`/api/categories/${categoryID}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          removeItemFromList: (itemId) => {
+            set((state: AppStore) => {
+              if (!state.activeList) return;
 
-          if (!res.ok) throw res;
-
-          set((state: AppStore) => {
-            state.items = state.items.filter(
-              (item) => item.categoryId !== categoryID
-            );
-            state.categories = state.categories.filter(
-              (category) => category.id !== categoryID
-            );
-          });
-        },
-
-        addItemToList: (item) => {
-          // increment count if item already in list
-          let itemInList = get().activeList?.items.find(
-            (i) => i.itemId == item.id
-          );
-
-          if (itemInList) {
-            get().actions.updateItemInActiveList({
-              ...itemInList,
-              count: itemInList.count + 1,
+              state.activeList.items = state.activeList.items.filter(
+                (item) => item.itemId !== itemId
+              );
             });
             get().actions.saveListToDB();
-          } else {
-            const itemToAdd = {
-              name: item.name,
-              count: 1,
-              cleared: false,
-              category: item.categoryName,
-              itemId: item.id,
-            };
+          },
+
+          updateItemInActiveList: (updatedItem) => {
             set((state: AppStore) => {
-              state.activeList?.items.push(itemToAdd);
+              if (!state.activeList) return;
+
+              const index = state.activeList.items.findIndex(
+                (i) => i.itemId === updatedItem.itemId
+              );
+              if (index === -1) return;
+
+              state.activeList.items[index] = updatedItem;
             });
-          }
-          get().actions.saveListToDB();
-        },
+            get().actions.saveListToDB();
+          },
 
-        removeItemFromList: (itemId) => {
-          set((state: AppStore) => {
-            if (!state.activeList) return;
+          setListName: (name) => {
+            if (name === "") return;
 
-            state.activeList.items = state.activeList.items.filter(
-              (item) => item.itemId !== itemId
+            set((state: AppStore) => {
+              if (!state.activeList) return;
+
+              state.activeList.name = name;
+            });
+            get().actions.saveListToDB();
+          },
+
+          setListState: async (listState) => {
+            const { activeList } = get();
+            if (!activeList) return;
+
+            set((state: AppStore) => {
+              if (!state.activeList) return;
+
+              state.activeList.state = listState;
+            });
+
+            await get().actions.saveListToDB(
+              { ...activeList, state: listState },
+              0
             );
-          });
-          get().actions.saveListToDB();
-        },
 
-        updateItemInActiveList: (updatedItem) => {
-          set((state: AppStore) => {
-            if (!state.activeList) return;
+            set((state: AppStore) => {
+              if (!state.activeList) return;
 
-            const index = state.activeList.items.findIndex(
-              (i) => i.itemId === updatedItem.itemId
-            );
-            if (index === -1) return;
+              state.activeList.state = listState;
+            });
+          },
 
-            state.activeList.items[index] = updatedItem;
-          });
-          get().actions.saveListToDB();
-        },
-
-        setListName: (name) => {
-          if (name === "") return;
-
-          set((state: AppStore) => {
-            if (!state.activeList) return;
-
-            state.activeList.name = name;
-          });
-          get().actions.saveListToDB();
-        },
-
-        setListState: async (listState) => {
-          const { activeList } = get();
-          if (!activeList) return;
-
-          await get().actions.saveListToDB(
-            { ...activeList, state: listState },
-            0
-          );
-
-          set((state: AppStore) => {
-            if (!state.activeList) return;
-
-            state.activeList.state = listState;
-          });
-        },
-
-        setActiveList: (shoppingList) =>
-          set(
-            (state: AppStore) => {
-              state.activeList = shoppingList;
-            },
-            false,
-            { type: { name: "setActiveList", shoppingList } }
-          ),
-
-        saveListToDB: async (
-          shoppingList,
-          timeOutInterval = TIMEOUT_INTERVAL_TO_SAVE_LIST
-        ) => {
-          const { activeList, timeoutIDToSaveList } = get();
-          if (!activeList || !shoppingList) return;
-
-          const listToSave = shoppingList || activeList;
-          if (timeoutIDToSaveList) clearTimeout(timeoutIDToSaveList);
-
-          const saveList = async () => {
-            // Remove ID field from api data since prisma does not allow update of ID
-            // and will throw an error if invalid fields are present
-            const { id, ...listWithoutID } = listToSave;
-
-            const res = await fetch(`/api/shopping_lists/${id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
+          setActiveList: (shoppingList) =>
+            set(
+              (state: AppStore) => {
+                state.activeList = shoppingList;
               },
-              body: JSON.stringify({ shoppingList: listWithoutID }),
-            });
+              false,
+              { type: { name: "setActiveList", shoppingList } }
+            ),
 
-            if (!res.ok) throw res;
-          };
-
-          let newTimeoutID;
-          if (timeOutInterval === 0) {
-            await saveList();
-            newTimeoutID = null;
-          } else {
-            newTimeoutID = window.setTimeout(saveList, timeOutInterval);
-          }
-
-          set({ timeoutIDToSaveList: newTimeoutID });
-        },
-
-        setIsListLoading: (isListLoading) => {
-          set({ isListLoading });
-        },
-
-        setCurrentItem: (item) => {
-          set({ currentItem: item });
-        },
-
-        setActiveSideBar: (value) => {
-          set((state: AppStore) => {
-            state.activeSideBar = value;
-
-            // Clear history if there is no active sidebar
-            if (value === ActiveSideBar["NONE"]) {
-              state.sidebarHistory = [];
-            } else {
-              state.sidebarHistory.push(value);
+          saveListToDB: async (
+            shoppingList,
+            timeOutInterval = TIMEOUT_INTERVAL_TO_SAVE_LIST
+          ) => {
+            const { activeList, timeoutIDToSaveList, user } = get();
+            if (
+              !activeList ||
+              !shoppingList ||
+              user?.accountType !== "online"
+            ) {
+              return;
             }
-          });
+
+            const listToSave = shoppingList || activeList;
+            if (timeoutIDToSaveList) clearTimeout(timeoutIDToSaveList);
+
+            const saveList = async () => {
+              // Remove ID field from api data since prisma does not allow update of ID
+              // and will throw an error if invalid fields are present
+              const { id, ...listWithoutID } = listToSave;
+
+              const res = await fetch(`/api/shopping_lists/${id}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ shoppingList: listWithoutID }),
+              });
+
+              if (!res.ok) throw res;
+            };
+
+            let newTimeoutID;
+            if (timeOutInterval === 0) {
+              await saveList();
+              newTimeoutID = null;
+            } else {
+              newTimeoutID = window.setTimeout(saveList, timeOutInterval);
+            }
+
+            set({ timeoutIDToSaveList: newTimeoutID });
+          },
+
+          setIsListLoading: (isListLoading) => {
+            set({ isListLoading });
+          },
+
+          setCurrentItem: (item) => {
+            set({ currentItem: item });
+          },
+
+          setActiveSideBar: (value) => {
+            set((state: AppStore) => {
+              state.activeSideBar = value;
+
+              // Clear history if there is no active sidebar
+              if (value === ActiveSideBar["NONE"]) {
+                state.sidebarHistory = [];
+              } else {
+                state.sidebarHistory.push(value);
+              }
+            });
+          },
+
+          setActiveListUIState: (value) => {
+            set({ activeListUIState: value });
+          },
+
+          addSideBarToHistory: (value) =>
+            set((state: AppStore) => {
+              state.sidebarHistory.push(value);
+            }),
+
+          popFromSideBarHistory: () => {
+            const sidebarHistory = get().sidebarHistory;
+            if (sidebarHistory.length < 1) return;
+
+            const value = sidebarHistory[sidebarHistory.length - 1];
+            set((state: AppStore) => {
+              state.sidebarHistory.pop();
+              state.activeSideBar =
+                state.sidebarHistory[state.sidebarHistory.length - 1] ||
+                ActiveSideBar["NONE"];
+            });
+            return value;
+          },
+
+          setSearchInput: (value) => {
+            set({ searchInput: value });
+          },
+
+          pushToShoppingListsHistory: (list) => {
+            set((state: AppStore) => {
+              state.shoppingListsHistory.push(list);
+            });
+          },
+
+          setShoppingListsHistory: (lists) => {
+            set({ shoppingListsHistory: lists });
+          },
+
+          resetStoreState: () => {
+            set(initialData);
+          },
+
+          setUser: (user) => {
+            set({ user });
+          },
         },
-
-        setActiveListUIState: (value) => {
-          set({ activeListUIState: value });
-        },
-
-        addSideBarToHistory: (value) =>
-          set((state: AppStore) => {
-            state.sidebarHistory.push(value);
-          }),
-
-        popFromSideBarHistory: () => {
-          const sidebarHistory = get().sidebarHistory;
-          if (sidebarHistory.length < 1) return;
-
-          const value = sidebarHistory[sidebarHistory.length - 1];
-          set((state: AppStore) => {
-            state.sidebarHistory.pop();
-            state.activeSideBar =
-              state.sidebarHistory[state.sidebarHistory.length - 1] ||
-              ActiveSideBar["NONE"];
-          });
-          return value;
-        },
-
-        setSearchInput: (value) => {
-          set({ searchInput: value });
-        },
-      },
-    }))
+      })),
+      {
+        name: "shoppingify-storage",
+        merge: (persistedState, currentState) =>
+          mergeDeep(currentState, persistedState),
+      }
+    )
   )
 );

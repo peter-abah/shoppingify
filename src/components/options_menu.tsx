@@ -20,10 +20,14 @@ function OptionsMenu({ options, menuButton }: Props) {
   return (
     <Menu
       menuButton={menuButton}
-      menuClassName="py-2 bg-white min-w-[6rem] mr-4 shadow-md rounded-md"
+      menuClassName="py-2 bg-white min-w-[10rem] mr-4 shadow-md z-50 rounded-md"
     >
       {options.map(({ node, onClick }) => (
-        <MenuItem onClick={onClick} className="cursor-pointer px-4 py-1 hover:bg-[#f2f2f2]">
+        <MenuItem
+          key={node?.toString()}
+          onClick={onClick}
+          className="cursor-pointer px-4 py-1 hover:bg-[#f2f2f2]"
+        >
           {node}
         </MenuItem>
       ))}

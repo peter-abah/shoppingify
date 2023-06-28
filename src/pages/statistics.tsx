@@ -9,14 +9,16 @@ import TopList from "@/components/top_list";
 import MonthChart from "@/components/month_chart";
 import { ReactElement } from "react";
 import AppLayout from "@/components/app_layout";
+import { ClientUser } from "../../types";
+import { useAppStore } from "@/lib/store";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
   if (!session) {
     return {
-      redirect: {
-        destination: "/api/auth/signin",
-        permanent: false,
+      props: {
+        statistics: { byName: [], byMonth: [], byCategory: [] },
+        user: null,
       },
     };
   }
@@ -29,15 +31,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   });
 
   const statistics = getShoppingStatistics(shoppingLists);
-  return { props: { statistics } };
+  return {
+    props: { statistics, user: { accountType: "online", ...session.user } },
+  };
 };
 
 type t = typeof getServerSideProps;
 type PageProps = {
   statistics: ReturnType<typeof getShoppingStatistics>;
+  user?: ClientUser;
 };
-export default function Page({ statistics }: PageProps) {
-  console.log({ statistics });
+export default function Page({ statistics, user }: PageProps) {
+  const shoppingLists = useAppStore((state) => state.shoppingListsHistory);
+
+  if (user?.accountType !== "online") {
+    statistics = getShoppingStatistics(shoppingLists);
+  }
 
   return (
     <>

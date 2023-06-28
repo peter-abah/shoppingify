@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { Quicksand } from "next/font/google";
 import dynamic from "next/dynamic";
 import NavBar from "@/components/nav_bar";
@@ -34,7 +34,7 @@ const AppLayout = ({ children }: Props) => {
     if (width < 1024) {
       setActiveSideBar(ActiveSideBar["NONE"]);
     }
-  }, []);
+  }, [width, setActiveSideBar]);
 
   const Sidebar = () => {
     switch (activeSideBar) {

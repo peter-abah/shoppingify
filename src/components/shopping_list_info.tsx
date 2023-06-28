@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import { ShoppingList, ShoppingListState } from "@prisma/client";
 import clsx from "clsx";

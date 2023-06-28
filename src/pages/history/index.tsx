@@ -75,7 +75,7 @@ export default function History({ shoppingLists, user }: PageProps) {
             <h3 className="mb-4 text-xs font-medium">{month}</h3>
             <div className="flex flex-col gap-7">
               {lists.map((shoppingList) => (
-                <ShoppingListInfo shoppingList={shoppingList} />
+                <ShoppingListInfo key={shoppingList.id} shoppingList={shoppingList} />
               ))}
             </div>
           </section>

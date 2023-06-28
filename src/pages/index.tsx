@@ -54,7 +54,7 @@ export default function Home({ categories, items, user }: HomeProps) {
     if (user?.accountType === "online") {
       initData(items, categories);
     }
-  }, [initData]);
+  }, [initData, items, categories, user?.accountType]);
 
   const itemsToRender = isMounted ? itemsFromStore : items;
   const filteredItems = itemsToRender.filter((i) =>
@@ -75,9 +75,7 @@ export default function Home({ categories, items, user }: HomeProps) {
         <Header />
         {itemsByCategory.map(([categoryId, items]) => (
           <div key={categoryId} className="md:mb-12 mb-7">
-            <Category
-              categoryId={categoryId}
-            />
+            <Category categoryId={categoryId} />
             <ol className="flex flex-wrap gap-x-2 gap-y-6 md:gap-x-5 md:gap-y-12">
               {items.map((item) => (
                 <li key={item.id} className="w-fit">

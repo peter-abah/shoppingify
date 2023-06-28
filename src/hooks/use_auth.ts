@@ -15,7 +15,7 @@ function useAuth() {
     if (session?.user.id) {
       setUser({ accountType: "online", ...session.user });
     }
-  }, [session?.user.id]);
+  }, [session?.user, setUser]);
 
   if (!user && !session && isMounted) {
     router.push("/sign_in");

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   MdList,
   MdOutlineInsertChartOutlined,
@@ -49,8 +50,7 @@ export default function NavBar() {
     >
       <OptionsMenu
         menuButton={
-    
-    <button>
+          <button>
             {session?.user?.image ? (
               <img
                 className="w-10 h-10 rounded-full hover:scale-110"

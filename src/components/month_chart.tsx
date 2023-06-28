@@ -1,3 +1,4 @@
+import React from "react";
 import { monthToNumberMap, numberToMonthMap } from "@/lib/helpers";
 import {
   CartesianGrid,

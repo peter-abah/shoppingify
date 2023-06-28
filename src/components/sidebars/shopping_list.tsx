@@ -31,7 +31,7 @@ export default function ShoppingList() {
     if (isListFromHookIsNew || activeList == null) {
       setActiveList(shoppingList);
     }
-  }, [activeList?.updatedAt, shoppingList?.updatedAt]);
+  }, [activeList, shoppingList, setActiveList]);
 
   const itemsByCategory = activeList
     ? [...groupItemsByCategory(activeList.items).entries()]

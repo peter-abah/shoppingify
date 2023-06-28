@@ -1,3 +1,4 @@
+import React from "react";
 import ReactModal from "react-modal";
 import clsx from "clsx";
 import { Quicksand } from "next/font/google";

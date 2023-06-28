@@ -1,5 +1,5 @@
 import { useAppStore } from "@/lib/store";
-import React, { useState } from "react";
+import React from "react";
 import { MdSearch } from "react-icons/md";
 
 export default function Header() {

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { ItemInShoppingList } from "@prisma/client";
 import { useState } from "react";

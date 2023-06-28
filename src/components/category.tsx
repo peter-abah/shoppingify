@@ -1,3 +1,4 @@
+import React from "react";
 import useIsMounted from "@/hooks/use_is_mounted";
 import { useAppStore } from "@/lib/store";
 import { Category as CategoryType } from "@prisma/client";
@@ -8,7 +9,7 @@ import { useToggle } from "usehooks-ts";
 import { WithSerializedDates } from "../../types/generic";
 import ConfirmModal from "./confirm_modal";
 import OptionsMenu from "./options_menu";
-import Spinner from "./spinner";
+import Spinner from "@/components/spinner";
 
 type Props = {
   categoryId: string; // WithSerializedDates<CategoryType>;
@@ -34,7 +35,7 @@ function Category({ categoryId }: Props) {
   if (!isMounted) {
     return (
       <header className="mb-[18px] flex items-center justify-between">
-        <h2 className="text-lg font-medium">"Loading"</h2>
+        <h2 className="text-lg font-medium">Loading</h2>
       </header>
     );
   }

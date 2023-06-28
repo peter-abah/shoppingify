@@ -1,3 +1,4 @@
+import React from "react";
 import Modal from "./modal";
 
 interface Props {
@@ -10,7 +11,7 @@ function ConfirmModal({ text, isOpen, onConfirm, onCancel }: Props) {
   const onConfirmWithClose = () => {
     onCancel();
     onConfirm();
-  }
+  };
   return (
     <Modal isOpen={isOpen} onRequestClose={onCancel} className="sm:w-[32rem]">
       <p className="mb-7 text-xl font-medium">{text}</p>

@@ -7,6 +7,10 @@ const quicksand = Quicksand({
   variable: "--font-quicksand",
 });
 
+if (typeof(window) !== 'undefined') {
+  ReactModal.setAppElement('body')
+}
+
 type Props = React.ComponentProps<typeof ReactModal>;
 
 // Applys default styles to react modal

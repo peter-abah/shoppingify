@@ -1,3 +1,4 @@
+import useIsMounted from "@/hooks/use_is_mounted";
 import { useAppStore } from "@/lib/store";
 import { Category as CategoryType } from "@prisma/client";
 import { useState } from "react";
@@ -19,6 +20,7 @@ function Category({ categoryId }: Props) {
   const { deleteCategory } = useAppStore((state) => state.actions);
   const category = categories.find((c) => c.id === categoryId);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const isMounted = useIsMounted();
 
   const onDelete = async () => {
     setIsDeleting(true);
@@ -26,15 +28,24 @@ function Category({ categoryId }: Props) {
     setIsDeleting(true);
   };
 
+  const categoryName = category?.name || "Not found";
+
+  // Don't render if ssr, since store has to be initialized in client
+  if (!isMounted) {
+    return (
+      <header className="mb-[18px] flex items-center justify-between">
+        <h2 className="text-lg font-medium">"Loading"</h2>
+      </header>
+    );
+  }
+
   return (
     <header className="mb-[18px] flex items-center justify-between">
       {shouldEdit && category ? (
         <EditForm category={category} hideForm={toggleShouldEdit} />
       ) : (
         <>
-          <h2 className="text-lg font-medium">
-            {category?.name || "Not found"}
-          </h2>
+          <h2 className="text-lg font-medium">{categoryName}</h2>
           {category &&
             (isDeleting ? (
               <Spinner loading={isDeleting} className="fill-black" />
@@ -99,12 +110,12 @@ function EditForm({ category, hideForm }: FormProps) {
         <Spinner loading={isSubmitting} className="fill-black" />
       ) : (
         <div className="ml-auto flex items-center gap-4">
-          <button type="button" className="hover:scale-125" onClick={hideForm}>
+          <button type="button" className="hover:scale-110" onClick={hideForm}>
             <span className="sr-only">cancel</span>
             <MdClose className="text-xl text-red-900" />
           </button>
 
-          <button type="submit" className="hover:scale-125">
+          <button type="submit" className="hover:scale-110">
             <span className="sr-only">Save</span>
             <MdCheck className="text-xl text-green-900" />
           </button>

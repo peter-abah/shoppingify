@@ -123,6 +123,8 @@ export const useAppStore = create<AppStore>()(
             set((state: AppStore) => {
               state.items.push(item);
             });
+
+            console.log({new: get()})
             return item;
           },
 

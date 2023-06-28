@@ -23,6 +23,7 @@ function ItemInList({ item }: Props) {
     <li className="flex items-center mb-6">
       {listUIState === ShoppingListUIState["COMPLETING"] && (
         <button
+          className="hover:scale-110"
           onClick={() =>
             updateItemInActiveList({ ...item, cleared: !item.cleared })
           }
@@ -43,7 +44,8 @@ function ItemInList({ item }: Props) {
         <button
           onClick={() => setIsEdit(true)}
           disabled={listUIState === ShoppingListUIState["COMPLETING"]}
-          className="ml-auto w-16 h-8 grid place-items-center text-[#F9A10A] border-2 border-[#F9A10A] rounded-3xl text-xs"
+          className="ml-auto w-16 h-8 grid place-items-center text-[#F9A10A] border-2 
+                   border-[#F9A10A] rounded-3xl text-xs hover:scale-110"
         >
           {item.count} pcs
         </button>
@@ -68,7 +70,7 @@ function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
     <div ref={ref} className="bg-white ml-auto rounded-xl flex items-center">
       <button
         onClick={() => removeItemFromList(item.itemId)}
-        className="bg-[#F9A10A] text-white px-[.875rem] py-4 rounded-xl"
+        className="bg-[#F9A10A] text-white px-[.875rem] py-4 rounded-xl hover:scale-110"
       >
         <MdDeleteOutline className="text-sm" />
       </button>
@@ -78,7 +80,7 @@ function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
         onClick={() =>
           updateItemInActiveList({ ...item, count: item.count - 1 })
         }
-        className="text-[#F9A10A] pl-[.875rem] pr-2 py-4 rounded-xl"
+        className="text-[#F9A10A] pl-[.875rem] pr-2 py-4 rounded-xl hover:scale-110"
       >
         <MdRemove className="text-sm" />
       </button>
@@ -91,7 +93,7 @@ function EditItemButtons({ item, setVisibility }: EditItemButtonsProps) {
         onClick={() =>
           updateItemInActiveList({ ...item, count: item.count + 1 })
         }
-        className="text-[#F9A10A] px-2 py-4 rounded-xl"
+        className="text-[#F9A10A] px-2 py-4 rounded-xl hover:scale-110"
       >
         <MdAdd className="text-sm" />
       </button>

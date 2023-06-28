@@ -149,7 +149,7 @@ const ItemForm = () => {
               type="button"
               onClick={onCreateCategory}
               className="w-full mt-4 px-6 py-4 flex items-center justify-center font-bold rounded-xl 
-                      bg-[#56CCF2] text-white"
+                      bg-[#56CCF2] text-white hover:scale-110"
               disabled={isCreatingCategory}
             >
               <span>Create category</span>
@@ -185,14 +185,14 @@ const ItemForm = () => {
           <button
             type="button"
             onClick={() => popFromSideBarHistory()}
-            className="px-6 py-4 font-bold rounded-xl"
+            className="px-6 py-4 font-bold rounded-xl hover:scale-110"
           >
             cancel
           </button>
           <button
             type="submit"
             className="text-white bg-[#F9A109] py-4 px-6 flex items-center rounded-xl 
-                        font-bold"
+                        font-bold hover:scale-110"
             disabled={isSubmitting}
           >
             Save

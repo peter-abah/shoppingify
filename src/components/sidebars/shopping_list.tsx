@@ -56,7 +56,7 @@ export default function ShoppingList() {
         </p>
         <button
           onClick={() => setActiveSideBar(ActiveSideBar["ITEM_FORM"])}
-          className="py-2.5 px-7 bg-white text-black text-sm font-bold rounded-xl"
+          className="py-2.5 px-7 bg-white text-black text-sm font-bold rounded-xl hover:scale-110"
         >
           Add Item
         </button>
@@ -83,7 +83,7 @@ export default function ShoppingList() {
           <>
             <h2 className="text-2xl font-bold mb-10 flex items-center">
               <span>{activeList.name}</span>
-              <button onClick={toggleUIState} className="ml-auto">
+              <button onClick={toggleUIState} className="ml-auto hover:scale-110">
                 <MdEdit className="text-lg" />
               </button>
             </h2>
@@ -135,7 +135,7 @@ function NameForm() {
 
   const buttonClassName = clsx(
     `absolute bottom-0 top-0 right-0 px-4 text-white rounded-xl font-bold 
-      placeholder:text-[#BDBDBD]`,
+      placeholder:text-[#BDBDBD] hover:scale-110`,
     { "bg-[#F9A109]": !isFormDisabled, "bg-[#C1C1C4]": isFormDisabled }
   );
 
@@ -201,7 +201,7 @@ function Buttons({ fetchNewActiveList }: ButtonsProps) {
     >
       <button
         onClick={() => setShowCancelModal(true)}
-        className="py-4 flex items-center px-6 rounded-xl font-bold"
+        className="py-4 flex items-center px-6 rounded-xl font-bold hover:scale-110"
       >
         <span>cancel</span>
         {isCanceling && (
@@ -210,7 +210,7 @@ function Buttons({ fetchNewActiveList }: ButtonsProps) {
       </button>
       <button
         onClick={handleComplete}
-        className="flex items-center text-white bg-[#56CCF2] py-4 px-6 rounded-xl font-bold"
+        className="flex items-center text-white bg-[#56CCF2] py-4 px-6 rounded-xl font-bold hover:scale-110"
       >
         <span>Complete</span>
         {isCompleting && (

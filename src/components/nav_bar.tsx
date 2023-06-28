@@ -48,7 +48,7 @@ export default function NavBar() {
           <button>
             {session?.user?.image ? (
               <img
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full hover:scale-110"
                 src={session.user.image}
                 alt={session.user.name!}
               />
@@ -94,7 +94,7 @@ export default function NavBar() {
 
       <button
         onClick={toggleShoppingList}
-        className="w-10 h-10 grid place-items-center bg-[#F9A109] rounded-full"
+        className="w-10 h-10 grid place-items-center bg-[#F9A109] rounded-full hover:scale-110"
       >
         <MdShoppingCart className="text-2xl text-white" />
         <span className="sr-only">Toggle shopping list visibility</span>

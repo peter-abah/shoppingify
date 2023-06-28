@@ -55,7 +55,6 @@ export default function Page({ shoppingList, user }: PageProps) {
   const isMounted = useIsMounted();
   const router = useRouter();
   const shoppingLists = useAppStore((state) => state.shoppingListsHistory);
-  const { setUser } = useAppStore((state) => state.actions);k
 
   const { list_id } = router.query;
   shoppingList =
@@ -80,7 +79,7 @@ export default function Page({ shoppingList, user }: PageProps) {
             <header className="mt-9 mb-14">
               <button
                 onClick={() => router.back()}
-                className="flex text-[#F9A109] mb-9"
+                className="flex text-[#F9A109] mb-9 hover:scale-110"
               >
                 <MdKeyboardBackspace className="mr-1 text-xl" />
                 <span className="text-sm font-bold">back</span>

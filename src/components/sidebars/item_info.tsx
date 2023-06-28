@@ -75,7 +75,7 @@ const ItemInfo = () => {
       >
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="flex items-center px-6 py-4 font-bold rounded-xl"
+          className="flex items-center px-6 py-4 font-bold rounded-xl hover:scale-110"
         >
           <span>delete</span>
           {isDeleting && (
@@ -84,7 +84,7 @@ const ItemInfo = () => {
         </button>
         <button
           onClick={onAddToList}
-          className="text-white bg-[#F9A109] py-4 px-6 rounded-xl font-bold"
+          className="text-white bg-[#F9A109] py-4 px-6 rounded-xl font-bold hover:scale-110"
         >
           Add to list
         </button>

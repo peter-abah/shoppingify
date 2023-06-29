@@ -411,7 +411,7 @@ export const useAppStore = create<AppStore>()(
         partialize: (state) =>
           Object.fromEntries(
             Object.entries(state).filter(
-              ([key]) => !["activeSideBar"].includes(key)
+              ([key]) => !["ui"].includes(key)
             )
           ),
       }

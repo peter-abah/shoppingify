@@ -50,16 +50,19 @@ export default function ShoppingList() {
       className="sidebar bg-[#FFF0DE] px-4 md:px-10 pb-36 h-screen overflow-y-auto grow shrink-0 w-[24rem] 
                     fixed md:left-auto top-0 right-0 z-10 flex flex-col"
     >
-      <div className="py-4 px-4 bg-[#80485B] my-11 text-white rounded-xl">
-        <p className="font-bold max-w-[10rem] mb-3.5">
-          Didn’t find what you need?
-        </p>
-        <button
-          onClick={() => setActiveSideBar(ActiveSideBar["ITEM_FORM"])}
-          className="py-2.5 px-7 bg-white text-black text-sm font-bold rounded-xl hover:scale-110"
-        >
-          Add Item
-        </button>
+      <div className="relative py-4 px-4 bg-[#80485B] my-11 text-white rounded-xl">
+        <div className="w-fit ml-28">
+          <p className="font-bold max-w-[10rem] w-fit mb-3.5">
+            Didn’t find what you need?
+          </p>
+          <button
+            onClick={() => setActiveSideBar(ActiveSideBar["ITEM_FORM"])}
+            className="py-2.5 px-7 bg-white text-black text-sm font-bold rounded-xl hover:scale-110"
+          >
+            Add Item
+          </button>
+        </div>
+        <img src="/bottle.svg" alt="" className="absolute top-[-1rem] left-3" />
       </div>
 
       {isFetching && (
@@ -83,7 +86,10 @@ export default function ShoppingList() {
           <>
             <h2 className="text-2xl font-bold mb-10 flex items-center">
               <span>{activeList.name}</span>
-              <button onClick={toggleUIState} className="ml-auto hover:scale-110">
+              <button
+                onClick={toggleUIState}
+                className="ml-auto hover:scale-110"
+              >
                 <MdEdit className="text-lg" />
               </button>
             </h2>

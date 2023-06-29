@@ -24,6 +24,20 @@ const quicksand = Quicksand({
 type Props = {
   children: ReactNode;
 };
+
+const Sidebar = ({ activeSideBar }: { activeSideBar: ActiveSideBar }) => {
+  switch (activeSideBar) {
+    case ActiveSideBar["SHOPPING_LIST"]:
+      return <ShoppingList />;
+    case ActiveSideBar["ITEM_INFO"]:
+      return <ItemInfo />;
+    case ActiveSideBar["ITEM_FORM"]:
+      return <ItemForm />;
+    default:
+      return null;
+  }
+};
+
 const AppLayout = ({ children }: Props) => {
   useAuth();
   const activeSideBar = useAppStore((state) => state.ui.activeSideBar);
@@ -36,23 +50,11 @@ const AppLayout = ({ children }: Props) => {
     }
   }, [width, setActiveSideBar]);
 
-  const Sidebar = () => {
-    switch (activeSideBar) {
-      case ActiveSideBar["SHOPPING_LIST"]:
-        return <ShoppingList />;
-      case ActiveSideBar["ITEM_INFO"]:
-        return <ItemInfo />;
-      case ActiveSideBar["ITEM_FORM"]:
-        return <ItemForm />;
-      default:
-        return null;
-    }
-  };
   return (
     <main className={`${quicksand.variable} font-sans`}>
       {children}
       <NavBar />
-      <Sidebar />
+      <Sidebar activeSideBar={activeSideBar} />
       {}
     </main>
   );

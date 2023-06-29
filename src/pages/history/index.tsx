@@ -61,6 +61,7 @@ export default function History({ shoppingLists, user }: PageProps) {
     <>
       <Head>
         <title>Shoppinify | History</title>
+        <meta name="description" content="Shopping list history" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

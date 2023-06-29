@@ -69,6 +69,7 @@ export default function Page({ shoppingList, user }: PageProps) {
     <>
       <Head>
         <title>Shoppinify | {shoppingList?.name || "Not Found"}</title>
+        <meta name="description" content="Shopping list history" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
